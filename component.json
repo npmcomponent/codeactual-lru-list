@@ -1,0 +1,16 @@
+{
+  "name": "lru-list",
+  "repo": "codeactual/lru-list-component",
+  "description": "Storage agnostic LRU list",
+  "version": "0.0.1",
+  "keywords": [
+    "cache",
+    "utility"
+  ],
+  "dependencies": {},
+  "development": {},
+  "scripts": [
+    "index.js"
+  ],
+  "license": "MIT"
+}
