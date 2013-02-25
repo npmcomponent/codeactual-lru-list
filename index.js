@@ -51,12 +51,14 @@ function LRUEntry(key) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.put = function(key, val, done) {
+  done = done || function() {};
+
   var self = this;
   function storeIODone(err) {
     if (err) { done(err); return; }
 
     var entry = new LRUEntry(key);
-    self.keymap = entry;
+    self.keymap[key] = entry;
     if (self.tail) {
       self.tail.newer = entry;
       entry.older = self.tail;
@@ -80,6 +82,8 @@ LRUList.prototype.put = function(key, val, done) {
  *   {mixed} Shifted LRUEntry or undefined.
  */
 LRUList.prototype.shift = function(done) {
+  done = done || function() {};
+
   var entry = this.head;
   if (!entry) {
     done(null);
@@ -111,6 +115,8 @@ LRUList.prototype.shift = function(done) {
  *   {mixed} Value or undefined.
  */
 LRUList.prototype.get = function(key, done) {
+  done = done || function() {};
+
   function storeIODone(err, val) {
     if (err) { done(err); return; }
 

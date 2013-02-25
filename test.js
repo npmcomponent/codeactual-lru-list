@@ -118,6 +118,28 @@ describe('LRUList', function() {
       list.put(this.key, this.val, cb);
     });
 
+    it('should update key map', function(done) {
+      var list = newList();
+      list.put('a', this.val, function putDone() {
+        list.keymap.should.deep.equal({
+          a: {
+            key: 'a',
+            older: undefined,
+            newer: undefined
+          }
+        });
+        done();
+      });
+    });
+
+    it('should not update key map on error', function(done) {
+      var list = newListWithBrokenIO();
+      list.put('a', this.val, function putDone() {
+        list.keymap.should.deep.equal({});
+        done();
+      });
+    });
+
     it('should update list', function(done) {
       var list = newList();
       var snapshots = [];
@@ -165,6 +187,32 @@ describe('LRUList', function() {
       });
     });
 
+    it('should update key map', function(done) {
+      var list = newList();
+      list.put('a', this.val, function putDone() {
+        list.shift(function shiftDone() {
+          list.keymap.should.deep.equal({});
+          done();
+        });
+      });
+    });
+
+    it('should not update key map on error', function(done) {
+      var list = newList();
+      list.put('a', this.val, function putDone() {
+        list.store.del = storeErrCb;
+        list.shift(function shiftDone() {
+          list.keymap.should.deep.equal({
+            a: {
+              key: 'a',
+              older: undefined,
+              newer: undefined
+            }
+          });
+          done();
+        });
+      });
+    });
 
     it('should update list', function(done) {
       var list = newList();
