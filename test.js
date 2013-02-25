@@ -22,6 +22,22 @@ function storeOkCb() {
 function storeErrCb() {
   getFirstCb([].slice.call(arguments))(storeErr);
 };
+function newList(limit) {
+  return new LRUList({
+    limit: limit,
+    set: storeOkCb,
+    get: storeOkCb,
+    del: storeOkCb
+  });
+};
+function newListWithBrokenIO(limit) {
+  return new LRUList({
+    limit: limit,
+    set: storeErrCb,
+    get: storeErrCb,
+    del: storeErrCb
+  });
+};
 
 describe('helpers', function() {
   describe('#getFirstCb()', function() {
@@ -38,7 +54,7 @@ describe('helpers', function() {
 describe('LRUList', function() {
   before(function(done) {
     this.key = 'foo';
-    this.value = 'bar';
+    this.val = 'bar';
     done();
   });
 
@@ -85,25 +101,25 @@ describe('LRUList', function() {
 
   describe('#put()', function() {
     it('should propagate IO success', function(done) {
-      var list = new LRUList({set: storeOkCb});
+      var list = newList();
       function cb(err) {
         should.equal(err, null);
         done();
       }
-      list.put(this.key, this.value, cb);
+      list.put(this.key, this.val, cb);
     });
 
     it('should propagate IO error', function(done) {
-      var list = new LRUList({set: storeErrCb});
+      var list = newListWithBrokenIO();
       function cb(err) {
         should.equal(err, storeErr);
         done();
       }
-      list.put(this.key, this.value, cb);
+      list.put(this.key, this.val, cb);
     });
 
     it('should update list', function(done) {
-      var list = new LRUList({set: storeOkCb});
+      var list = newList();
       var snapshots = [];
       function addSnapshot() {
         snapshots.push(list.toArray());
@@ -111,20 +127,71 @@ describe('LRUList', function() {
       function endSnapshots() {
         addSnapshot();
         snapshots.should.deep.equal(
-          snapshots,
           [
             ['a'],
-            ['b', 'a'],
-            ['c', 'b', 'a'],
-            ['d', 'c', 'b', 'a']
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['a', 'b', 'c', 'd']
           ]
         );
         done();
       }
-      list.put('a', this.value, addSnapshot);
-      list.put('b', this.value, addSnapshot);
-      list.put('c', this.value, addSnapshot);
-      list.put('d', this.value, endSnapshots);
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.put('d', this.val, endSnapshots);
+    });
+  });
+
+  describe('#shift()', function() {
+    it('should handle empty list', function(done) {
+      newList().shift(function cb(err) {
+        should.equal(err, null);
+        done();
+      });
+    });
+
+    it('should propagate IO success', function(done) {
+      newList().shift(function cb(err) {
+        should.equal(err, null);
+        done();
+      });
+    });
+
+    it('should propagate IO error', function(done) {
+      newListWithBrokenIO().put(this.key, this.val, function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      });
+    });
+
+
+    it('should update list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['b', 'c'],
+            ['c'],
+            []
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.shift(addSnapshot);
+      list.shift(addSnapshot);
+      list.shift(endSnapshots);
     });
   });
 });

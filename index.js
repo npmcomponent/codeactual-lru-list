@@ -18,7 +18,7 @@ var emptyFn = function() {};
  * @param {object} config
  *   {number} [limit=100]
  *   {function} set
- *     (key, value, done)
+ *     (key, val, done)
  *   {function} get
  *     (key, done)
  *   {function} del
@@ -46,11 +46,11 @@ function LRUEntry(key) {
 
 /**
  * @param {string} key
- * @param {mixed} value
+ * @param {mixed} val
  * @param {function} done
  *   {object} Error instance or null.
  */
-LRUList.prototype.put = function(key, value, done) {
+LRUList.prototype.put = function(key, val, done) {
   var self = this;
   function storeIODone(err) {
     if (err) { done(err); return; }
@@ -71,13 +71,13 @@ LRUList.prototype.put = function(key, value, done) {
       done(null);
     }
   }
-  this.store.set(key, value, storeIODone);
+  this.store.set(key, val, storeIODone);
 };
 
 /**
  * @param {function} done
  *   {object} Error instance or null.
- *   {mixed} Shifted LruEntry or undefined.
+ *   {mixed} Shifted LRUEntry or undefined.
  */
 LRUList.prototype.shift = function(done) {
   var entry = this.head;
@@ -111,7 +111,7 @@ LRUList.prototype.shift = function(done) {
  *   {mixed} Value or undefined.
  */
 LRUList.prototype.get = function(key, done) {
-  function storeIODone(err, value) {
+  function storeIODone(err, val) {
     if (err) { done(err); return; }
 
     var entry = this.keymap[key];
@@ -120,7 +120,7 @@ LRUList.prototype.get = function(key, done) {
       return;
     }
     if (entry === this.tail) {
-      done(null, value);
+      done(null, val);
       return;
     }
 
@@ -142,7 +142,7 @@ LRUList.prototype.get = function(key, done) {
     }
     this.tail = entry;
 
-    done(null, value);
+    done(null, val);
   }
   this.store.get(key, storeIODone);
 };
