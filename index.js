@@ -6,6 +6,15 @@
  * Based on https://github.com/rsms/js-lru
  *   Licensed under MIT.
  *   Copyright (c) 2010 Rasmus Andersson <http://hunch.se/>
+ *   Illustration of the original design:
+ *
+ *    entry             entry             entry             entry
+ *    ______            ______            ______            ______
+ *   | head |.newer => |      |.newer => |      |.newer => | tail |
+ *   |  A   |          |  B   |          |  C   |          |  D   |
+ *   |______| <= older.|______| <= older.|______| <= older.|______|
+ *
+ *    removed  <--  <--  <--  <--  <--  <--  <--  <--  <--  added
  */
 module.exports = {
   LRUList: LRUList,
