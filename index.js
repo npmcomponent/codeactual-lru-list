@@ -56,8 +56,8 @@ function LRUEntry(key) {
  */
 LRUList.prototype.put = function(key, val, done) {
   done = done || function() {};
-
   var self = this;
+
   function storeIODone(err) {
     if (err) { done(err); return; }
 
@@ -87,6 +87,7 @@ LRUList.prototype.put = function(key, val, done) {
  */
 LRUList.prototype.shift = function(done) {
   done = done || function() {};
+  var self = this;
 
   var entry = this.head;
   if (!entry) {
@@ -102,7 +103,6 @@ LRUList.prototype.shift = function(done) {
   }
   entry.newer = entry.older = undefined;
 
-  var self = this;
   function storeIODone(err) {
     if (err) { done(err); return; }
 
@@ -166,7 +166,6 @@ LRUList.prototype.get = function(key, done) {
  */
 LRUList.prototype.remove = function(key, done) {
   done = done || function() {};
-
   var self = this;
 
   function storeIODone(err) {
@@ -198,7 +197,8 @@ LRUList.prototype.remove = function(key, done) {
 }
 
 LRUList.prototype.toArray = function() {
-  var s = [], entry = this.head;
+  var s = [];
+  var entry = this.head;
   while (entry) {
     s.push(entry.key);
     entry = entry.newer;

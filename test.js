@@ -172,6 +172,34 @@ describe('LRUList', function() {
       list.put('d', this.val, addSnapshot);
       list.put('e', this.val, endSnapshots);
     });
+
+    it('should let dupe keys push out older', function(done) {
+      var list = newList(5);
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['a', 'b', 'c', 'a'],
+            ['a', 'b', 'c', 'a', 'b'],
+            ['b', 'c', 'a', 'b', 'c']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, endSnapshots);
+    });
   });
 
   describe('#shift()', function() {
