@@ -23,10 +23,10 @@ var emptyFn = function() {};
  *     done(err, val)
  *   {function} del(key, done)
  *     done(err)
-
- * 'err' should be an Error instance.
- *  Pass errors when I/O seek/write attempts fail.
- *  Otherwise pass null.
+ *
+ * done() callbacks:
+ *   'err' should be an Error instance.
+ *   List structures will not be modified on truthy 'err'.
  */
 function LRUList(config) {
   config = config || {};
