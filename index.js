@@ -17,12 +17,16 @@ var emptyFn = function() {};
 /**
  * @param {object} config
  *   {number} [limit=100]
- *   {function} set
- *     (key, val, done)
- *   {function} get
- *     (key, done)
- *   {function} del
- *     (key, done)
+ *   {function} set(key, val, done)
+ *     done(err)
+ *   {function} get(key, done)
+ *     done(err, val)
+ *   {function} del(key, done)
+ *     done(err)
+
+ * 'err' should be an Error instance.
+ *  Pass errors when I/O seek/write attempts fail.
+ *  Otherwise pass null.
  */
 function LRUList(config) {
   config = config || {};
@@ -42,7 +46,7 @@ function LRUEntry(key) {
   this.key = key;
   this.older = undefined;
   this.newer = undefined;
-};
+}
 
 /**
  * @param {string} key
@@ -102,8 +106,8 @@ LRUList.prototype.shift = function(done) {
   function storeIODone(err) {
     if (err) { done(err); return; }
 
-    delete self.keymap[entry.key]
-    done(null, entry)
+    delete self.keymap[entry.key];
+    done(null, entry);
   }
   this.store.del(entry.key, storeIODone);
 };
@@ -117,22 +121,24 @@ LRUList.prototype.shift = function(done) {
 LRUList.prototype.get = function(key, done) {
   done = done || function() {};
 
+  var self = this;
+
   function storeIODone(err, val) {
     if (err) { done(err); return; }
 
-    var entry = this.keymap[key];
+    var entry = self.keymap[key];
     if (entry === undefined) {
       done(null);
       return;
     }
-    if (entry === this.tail) {
+    if (entry === self.tail) {
       done(null, val);
       return;
     }
 
     if (entry.newer) {
-      if (entry === this.head) {
-        this.head = entry.newer;
+      if (entry === self.head) {
+        self.head = entry.newer;
       }
       entry.newer.older = entry.older;
     }
@@ -141,17 +147,55 @@ LRUList.prototype.get = function(key, done) {
     }
 
     entry.newer = undefined;
-    entry.older = this.tail;
+    entry.older = self.tail;
 
-    if (this.tail) {
-      this.tail.newer = entry;
+    if (self.tail) {
+      self.tail.newer = entry;
     }
-    this.tail = entry;
+    self.tail = entry;
 
     done(null, val);
   }
   this.store.get(key, storeIODone);
 };
+
+/**
+ * @param {string} key
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype.remove = function(key, done) {
+  done = done || function() {};
+
+  var self = this;
+
+  function storeIODone(err) {
+    if (err) { done(err); return; }
+
+    var entry = self.keymap[key];
+    if (!entry) { done(null); return; }
+
+    delete self.keymap[entry.key];
+
+    if (entry.newer && entry.older) {
+      entry.older.newer = entry.newer;
+      entry.newer.older = entry.older;
+    } else if (entry.newer) {
+      entry.newer.older = undefined;
+      self.head = entry.newer;
+    } else if (entry.older) {
+      entry.older.newer = undefined;
+      self.tail = entry.older;
+    } else {
+      self.head = self.tail = undefined;
+    }
+
+    self.size--;
+
+    done(null);
+  }
+  this.store.del(key, storeIODone);
+}
 
 LRUList.prototype.toArray = function() {
   var s = [], entry = this.head;
@@ -160,4 +204,4 @@ LRUList.prototype.toArray = function() {
     entry = entry.newer;
   }
   return s;
-}
+};

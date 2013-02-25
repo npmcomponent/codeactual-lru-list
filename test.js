@@ -16,20 +16,26 @@ function getFirstCb(arr) {
     if ('function' === typeof arg) { return arg; }
   }, null);
 }
-function storeOkCb() {
-  getFirstCb([].slice.call(arguments))();
-};
 function storeErrCb() {
   getFirstCb([].slice.call(arguments))(storeErr);
-};
+}
 function newList(limit) {
+  var storage = {};
   return new LRUList({
     limit: limit,
-    set: storeOkCb,
-    get: storeOkCb,
-    del: storeOkCb
+    set: function(key, val, done) {
+      storage[key] = val;
+      done(null);
+    },
+    get: function(key, done) {
+      done(null, storage[key]);
+    },
+    del: function(key, done) {
+      delete storage[key];
+      done(null);
+    }
   });
-};
+}
 function newListWithBrokenIO(limit) {
   return new LRUList({
     limit: limit,
@@ -37,7 +43,7 @@ function newListWithBrokenIO(limit) {
     get: storeErrCb,
     del: storeErrCb
   });
-};
+}
 
 describe('helpers', function() {
   describe('#getFirstCb()', function() {
@@ -55,6 +61,12 @@ describe('LRUList', function() {
   before(function(done) {
     this.key = 'foo';
     this.val = 'bar';
+    this.oneKeyListEntry = {};
+    this.oneKeyListEntry[this.key] = {
+      key: this.key,
+      older: undefined,
+      newer: undefined
+    };
     done();
   });
 
@@ -119,22 +131,17 @@ describe('LRUList', function() {
     });
 
     it('should update key map', function(done) {
+      var self = this;
       var list = newList();
-      list.put('a', this.val, function putDone() {
-        list.keymap.should.deep.equal({
-          a: {
-            key: 'a',
-            older: undefined,
-            newer: undefined
-          }
-        });
+      list.put(this.key, this.val, function putDone() {
+        list.keymap.should.deep.equal(self.oneKeyListEntry);
         done();
       });
     });
 
     it('should not update key map on error', function(done) {
       var list = newListWithBrokenIO();
-      list.put('a', this.val, function putDone() {
+      list.put(this.key, this.val, function putDone() {
         list.keymap.should.deep.equal({});
         done();
       });
@@ -198,17 +205,12 @@ describe('LRUList', function() {
     });
 
     it('should not update key map on error', function(done) {
+      var self = this;
       var list = newList();
-      list.put('a', this.val, function putDone() {
+      list.put(this.key, this.val, function putDone() {
         list.store.del = storeErrCb;
         list.shift(function shiftDone() {
-          list.keymap.should.deep.equal({
-            a: {
-              key: 'a',
-              older: undefined,
-              newer: undefined
-            }
-          });
+          list.keymap.should.deep.equal(self.oneKeyListEntry);
           done();
         });
       });
@@ -240,6 +242,116 @@ describe('LRUList', function() {
       list.shift(addSnapshot);
       list.shift(addSnapshot);
       list.shift(endSnapshots);
+    });
+  });
+
+  describe('#get()', function() {
+    it('should propagate IO success', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.get(self.key, function getDone(err) {
+          should.equal(err, null);
+          done();
+        });
+      });
+    });
+
+    it('should propagate IO error', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.store.get = storeErrCb;
+        list.get(self.key, function getDone(err) {
+          should.equal(err, storeErr);
+          done();
+        });
+      });
+    });
+  });
+
+  describe('#remove()', function() {
+    it('should propagate IO success', function(done) {
+      newList().remove(this.key, function cb(err) {
+        should.equal(err, null);
+        done();
+      });
+    });
+
+    it('should propagate IO error', function(done) {
+      newListWithBrokenIO().remove(this.key, function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      });
+    });
+
+    it('should update key map', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.remove(self.key, function shiftDone() {
+          list.keymap.should.deep.equal({});
+          done();
+        });
+      });
+    });
+
+    it('should not update key map on error', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.store.del = storeErrCb;
+        list.shift(function shiftDone() {
+          list.keymap.should.deep.equal(self.oneKeyListEntry);
+          done();
+        });
+      });
+    });
+
+    it('should update list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['b', 'c'],
+            ['c'],
+            []
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.shift(addSnapshot);
+      list.shift(addSnapshot);
+      list.shift(endSnapshots);
+    });
+  });
+
+  describe('integration', function() {
+    it('should write/read/delete store values', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.get(self.key, function getDone(err, val) {
+          should.equal(val, self.val);
+          list.remove(self.key, function delDone(err) {
+            list.get(self.key, function getDone(err, val) {
+              should.not.exist(val);
+              done();
+            });
+          });
+        });
+      });
     });
   });
 });
