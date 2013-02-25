@@ -301,7 +301,7 @@ describe('LRUList', function() {
       var list = newList();
       list.put(this.key, this.val, function putDone() {
         list.store.del = storeErrCb;
-        list.shift(function shiftDone() {
+        list.remove(function shiftDone() {
           list.keymap.should.deep.equal(self.oneKeyListEntry);
           done();
         });
@@ -321,8 +321,8 @@ describe('LRUList', function() {
             ['a'],
             ['a', 'b'],
             ['a', 'b', 'c'],
-            ['b', 'c'],
-            ['c'],
+            ['a', 'b'],
+            ['a'],
             []
           ]
         );
@@ -331,9 +331,9 @@ describe('LRUList', function() {
       list.put('a', this.val, addSnapshot);
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, addSnapshot);
-      list.shift(addSnapshot);
-      list.shift(addSnapshot);
-      list.shift(endSnapshots);
+      list.remove('c', addSnapshot);
+      list.remove('b', addSnapshot);
+      list.remove('a', endSnapshots);
     });
   });
 
