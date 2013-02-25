@@ -308,7 +308,7 @@ describe('LRUList', function() {
       });
     });
 
-    it('should update list', function(done) {
+    it('should update newest of list', function(done) {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
@@ -321,9 +321,7 @@ describe('LRUList', function() {
             ['a'],
             ['a', 'b'],
             ['a', 'b', 'c'],
-            ['a', 'b'],
-            ['a'],
-            []
+            ['a', 'b']
           ]
         );
         done();
@@ -331,8 +329,54 @@ describe('LRUList', function() {
       list.put('a', this.val, addSnapshot);
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, addSnapshot);
-      list.remove('c', addSnapshot);
-      list.remove('b', addSnapshot);
+      list.remove('c', endSnapshots);
+    });
+
+    it('should update middle of list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['a', 'c']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.remove('b', endSnapshots);
+    });
+
+    it('should remove oldest of list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['b', 'c']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
       list.remove('a', endSnapshots);
     });
   });
