@@ -217,9 +217,11 @@ LRUList.prototype.remove = function(key, done) {
 }
 
 /**
- * Produce a head-to-tail key list.
+ * Produce a head-to-tail ordered key list.
+ *
+ * @return {array}
  */
-LRUList.prototype.toArray = function() {
+LRUList.prototype.keys = function() {
   var arr = [];
   var entry = this.head;
   while (entry) {

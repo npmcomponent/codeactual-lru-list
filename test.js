@@ -111,7 +111,7 @@ describe('LRUList', function() {
       var list = newList(3);
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -137,7 +137,7 @@ describe('LRUList', function() {
       var list = newList(5);
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -222,7 +222,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -275,7 +275,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -299,7 +299,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -323,7 +323,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -347,7 +347,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -422,7 +422,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -446,7 +446,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
@@ -470,7 +470,7 @@ describe('LRUList', function() {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
-        snapshots.push(list.toArray());
+        snapshots.push(list.keys());
       }
       function endSnapshots() {
         addSnapshot();
