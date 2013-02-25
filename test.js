@@ -21,7 +21,7 @@ function storeErrCb() {
 }
 function newList(limit) {
   var storage = {};
-  return new LRUList({
+  var list = new LRUList({
     limit: limit,
     set: function(key, val, done) {
       storage[key] = val;
@@ -35,6 +35,8 @@ function newList(limit) {
       done(null);
     }
   });
+  list.storage = storage;
+  return list;
 }
 function newListWithBrokenIO(limit) {
   return new LRUList({
@@ -147,6 +149,15 @@ describe('LRUList', function() {
       });
     });
 
+    it('should update store', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.storage[self.key].should.equal(self.val);
+        done();
+      });
+    });
+
     it('should limit list', function(done) {
       var list = newList(3);
       var snapshots = [];
@@ -226,7 +237,7 @@ describe('LRUList', function() {
 
     it('should update key map', function(done) {
       var list = newList();
-      list.put('a', this.val, function putDone() {
+      list.put(this.key, this.val, function putDone() {
         list.shift(function shiftDone() {
           list.keymap.should.deep.equal({});
           done();
@@ -241,6 +252,18 @@ describe('LRUList', function() {
         list.store.del = storeErrCb;
         list.shift(function shiftDone() {
           list.keymap.should.deep.equal(self.oneKeyListEntry);
+          done();
+        });
+      });
+    });
+
+    it('should update store', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.storage[self.key].should.equal(self.val);
+        list.shift(function shiftDone() {
+          list.storage.should.deep.equal({});
           done();
         });
       });
@@ -434,6 +457,18 @@ describe('LRUList', function() {
       });
     });
 
+    it('should update store', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.storage[self.key].should.equal(self.val);
+        list.remove(self.key, function removeDone() {
+          list.storage.should.deep.equal({});
+          done();
+        });
+      });
+    });
+
     it('should remove newest of list', function(done) {
       var list = newList();
       var snapshots = [];
@@ -508,7 +543,7 @@ describe('LRUList', function() {
   });
 
   describe('integration', function() {
-    it('should write/read/delete store values', function(done) {
+    it('should handle put/get/remove cycle', function(done) {
       var self = this;
       var list = newList();
       list.put(this.key, this.val, function putDone() {
