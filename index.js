@@ -1,6 +1,6 @@
 /**
  * Storage agnostic LRU list.
- *   Uses doubly-linked list.
+ *   Uses doubly-linked list and key map.
  *   Supports async get, set, etc.
  *
  * Based on https://github.com/rsms/js-lru
@@ -58,6 +58,12 @@ function LRUEntry(key) {
 }
 
 /**
+ * Append key to the list's tail. Trigger storage of the value.
+ *
+ * - Duplicate keys are allowed by original design.
+ *   May produce "orphaned" entries to which the key map no longer points. Then they
+ *   can no longer be read/removed, and can only be pushed out by lack of use.
+ *
  * @param {string} key
  * @param {mixed} val
  * @param {function} done
@@ -90,6 +96,8 @@ LRUList.prototype.put = function(key, val, done) {
 };
 
 /**
+ * Remove the key at the list's head (the LRU). Trigger removal of the value.
+ *
  * @param {function} done
  *   {object} Error instance or null.
  *   {mixed} Shifted LRUEntry or undefined.
@@ -122,6 +130,8 @@ LRUList.prototype.shift = function(done) {
 };
 
 /**
+ * Promote the key to the tail (MFU). Read the value from storage.
+ *
  * @param {string} key
  * @param {function} done
  *   {object} Error instance or null.
@@ -169,6 +179,8 @@ LRUList.prototype.get = function(key, done) {
 };
 
 /**
+ * Remove the key from the list and key map. Trigger removal of the value.
+ *
  * @param {string} key
  * @param {function} done
  *   {object} Error instance or null.
@@ -205,12 +217,15 @@ LRUList.prototype.remove = function(key, done) {
   this.store.del(key, storeIODone);
 }
 
+/**
+ * Produce a head-to-tail key list.
+ */
 LRUList.prototype.toArray = function() {
-  var s = [];
+  var arr = [];
   var entry = this.head;
   while (entry) {
-    s.push(entry.key);
+    arr.push(entry.key);
     entry = entry.newer;
   }
-  return s;
+  return arr;
 };
