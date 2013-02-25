@@ -268,6 +268,102 @@ describe('LRUList', function() {
         });
       });
     });
+
+    it('should raise from middle of list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['a', 'c']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.remove('b', endSnapshots);
+    });
+
+    it('should not move newest of list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['a', 'b', 'c']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.get('c', endSnapshots);
+    });
+
+    it('should raise from middle of list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['a', 'c', 'b']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.get('b', endSnapshots);
+    });
+
+    it('should raise from oldest of list', function(done) {
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.toArray());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            ['a'],
+            ['a', 'b'],
+            ['a', 'b', 'c'],
+            ['b', 'c', 'a']
+          ]
+        );
+        done();
+      }
+      list.put('a', this.val, addSnapshot);
+      list.put('b', this.val, addSnapshot);
+      list.put('c', this.val, addSnapshot);
+      list.get('a', endSnapshots);
+    });
   });
 
   describe('#remove()', function() {
@@ -308,7 +404,7 @@ describe('LRUList', function() {
       });
     });
 
-    it('should update newest of list', function(done) {
+    it('should remove newest of list', function(done) {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
@@ -332,7 +428,7 @@ describe('LRUList', function() {
       list.remove('c', endSnapshots);
     });
 
-    it('should update middle of list', function(done) {
+    it('should remove middle of list', function(done) {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
