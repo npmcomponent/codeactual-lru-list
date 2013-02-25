@@ -6,58 +6,7 @@ var lruList = require('./index');
 var LRUList = lruList.LRUList;
 var LRUEntry = lruList.LRUEntry;
 
-function emptyFn() {}
-
 var storeErr = new Error('store err');
-
-function getFirstCb(arr) {
-  return arr.reduce(function(memo, arg) {
-    if (memo) { return memo; }
-    if ('function' === typeof arg) { return arg; }
-  }, null);
-}
-function storeErrCb() {
-  getFirstCb([].slice.call(arguments))(storeErr);
-}
-function newList(limit) {
-  var storage = {};
-  var list = new LRUList({
-    limit: limit,
-    set: function(key, val, done) {
-      storage[key] = val;
-      done(null);
-    },
-    get: function(key, done) {
-      done(null, storage[key]);
-    },
-    del: function(key, done) {
-      delete storage[key];
-      done(null);
-    }
-  });
-  list.storage = storage;
-  return list;
-}
-function newListWithBrokenIO(limit) {
-  return new LRUList({
-    limit: limit,
-    set: storeErrCb,
-    get: storeErrCb,
-    del: storeErrCb
-  });
-}
-
-describe('helpers', function() {
-  describe('#getFirstCb()', function() {
-    it('should return 1st function in array', function(done) {
-      var fn1 = function() {};
-      var fn2 = function() {};
-      var arr = [1, 'foo', fn1, 2, fn2];
-      getFirstCb(arr).should.deep.equal(fn1);
-      done();
-    });
-  });
-});
 
 describe('LRUList', function() {
   before(function(done) {
@@ -560,3 +509,53 @@ describe('LRUList', function() {
     });
   });
 });
+
+describe('helpers', function() {
+  describe('#getFirstCb()', function() {
+    it('should return 1st function in array', function(done) {
+      var fn1 = function() {};
+      var fn2 = function() {};
+      var arr = [1, 'foo', fn1, 2, fn2];
+      getFirstCb(arr).should.deep.equal(fn1);
+      done();
+    });
+  });
+});
+
+function emptyFn() {}
+function getFirstCb(arr) {
+  return arr.reduce(function(memo, arg) {
+    if (memo) { return memo; }
+    if ('function' === typeof arg) { return arg; }
+  }, null);
+}
+function storeErrCb() {
+  getFirstCb([].slice.call(arguments))(storeErr);
+}
+function newList(limit) {
+  var storage = {};
+  var list = new LRUList({
+    limit: limit,
+    set: function(key, val, done) {
+      storage[key] = val;
+      done(null);
+    },
+    get: function(key, done) {
+      done(null, storage[key]);
+    },
+    del: function(key, done) {
+      delete storage[key];
+      done(null);
+    }
+  });
+  list.storage = storage;
+  return list;
+}
+function newListWithBrokenIO(limit) {
+  return new LRUList({
+    limit: limit,
+    set: storeErrCb,
+    get: storeErrCb,
+    del: storeErrCb
+  });
+}
