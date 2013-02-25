@@ -147,8 +147,8 @@ describe('LRUList', function() {
       });
     });
 
-    it('should update list', function(done) {
-      var list = newList();
+    it('should limit list', function(done) {
+      var list = newList(3);
       var snapshots = [];
       function addSnapshot() {
         snapshots.push(list.toArray());
@@ -160,7 +160,8 @@ describe('LRUList', function() {
             ['a'],
             ['a', 'b'],
             ['a', 'b', 'c'],
-            ['a', 'b', 'c', 'd']
+            ['b', 'c', 'd'],
+            ['c', 'd', 'e']
           ]
         );
         done();
@@ -168,7 +169,8 @@ describe('LRUList', function() {
       list.put('a', this.val, addSnapshot);
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, addSnapshot);
-      list.put('d', this.val, endSnapshots);
+      list.put('d', this.val, addSnapshot);
+      list.put('e', this.val, endSnapshots);
     });
   });
 

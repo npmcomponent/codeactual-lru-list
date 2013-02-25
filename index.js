@@ -71,7 +71,7 @@ LRUList.prototype.put = function(key, val, done) {
     }
     self.tail = entry;
     if (self.size === self.limit) {
-      self.shift();
+      self.shift(done);
     } else {
       self.size++;
       done(null);
