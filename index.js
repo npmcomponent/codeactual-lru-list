@@ -70,29 +70,31 @@ function LRUEntry(key) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.put = function(key, val, done) {
-  done = done || function() {};
+  done = done || function putDoneNoOp() {};
   var self = this;
 
-  function storeIODone(err) {
-    if (err) { done(err); return; }
+  this.store.set(key, val, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
-    var entry = new LRUEntry(key);
+    var entry = new LRUEntry(key); // Create new tail.
     self.keymap[key] = entry;
-    if (self.tail) {
+
+    if (self.tail) { // Link old tail to new tail.
       self.tail.newer = entry;
       entry.older = self.tail;
-    } else {
+    } else { // First entry.
       self.head = entry;
     }
-    self.tail = entry;
-    if (self.size === self.limit) {
+
+    self.tail = entry; // Assign new tail.
+
+    if (self.size === self.limit) { // List size exceeded. Trim head.
       self.shift(done);
     } else {
       self.size++;
       done(null);
     }
-  }
-  this.store.set(key, val, storeIODone);
+  });
 };
 
 /**
@@ -103,34 +105,36 @@ LRUList.prototype.put = function(key, val, done) {
  *   {mixed} Shifted LRUEntry or undefined.
  */
 LRUList.prototype.shift = function(done) {
-  done = done || function() {};
+  done = done || function shiftDoneNoOp() {};
   var self = this;
 
   var entry = this.head;
-  if (!entry) {
+  if (!entry) { // List already empty.
     done(null);
     return;
   }
 
-  if (this.head.newer) {
+  if (this.head.newer) { // 2nd-to-head is now head.
     this.head = this.head.newer;
     this.head.older = undefined;
-  } else {
+  } else { // Head was the only entry.
     this.head = undefined;
   }
+
+  // Remove last strong reference to <entry> and remove links from the purged
+  // entry being returned.
   entry.newer = entry.older = undefined;
 
-  function storeIODone(err) {
-    if (err) { done(err); return; }
+  this.store.del(entry.key, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     delete self.keymap[entry.key];
     done(null, entry);
-  }
-  this.store.del(entry.key, storeIODone);
+  });
 };
 
 /**
- * Promote the key to the tail (MFU). Read the value from storage.
+ * Promote the key to the tail (MRU). Read the value from storage.
  *
  * @param {string} key
  * @param {function} done
@@ -138,44 +142,39 @@ LRUList.prototype.shift = function(done) {
  *   {mixed} Value or undefined.
  */
 LRUList.prototype.get = function(key, done) {
-  done = done || function() {};
-
+  done = done || function getDoneNoOp() {};
   var self = this;
 
-  function storeIODone(err, val) {
-    if (err) { done(err); return; }
+  this.store.get(key, function storeIODone(err, val) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     var entry = self.keymap[key];
-    if (entry === undefined) {
-      done(null);
-      return;
-    }
-    if (entry === self.tail) {
-      done(null, val);
-      return;
-    }
 
-    if (entry.newer) {
+    if (entry === undefined) { done(null); return; } // Key miss.
+    if (entry === self.tail) { done(null, val); return; } // Key already MRU.
+
+    if (entry.newer) { // Key has more-recently-used than it.
       if (entry === self.head) {
-        self.head = entry.newer;
+        self.head = entry.newer; // 2nd-to-head is now head.
       }
+      // Connect adjacent entries to fill the future gap it will leave.
       entry.newer.older = entry.older;
     }
-    if (entry.older) {
+    if (entry.older) { // Key has less-recently-used than it.
+      // Connect adjacent entries to fill the future gap it will leave.
       entry.older.newer = entry.newer;
     }
 
-    entry.newer = undefined;
-    entry.older = self.tail;
+    entry.newer = undefined; // Entry will be newest.
 
-    if (self.tail) {
-      self.tail.newer = entry;
-    }
+    // Move current tail will 2nd-to-tail positiion.
+    entry.older = self.tail;
+    if (self.tail) { self.tail.newer = entry; }
+
     self.tail = entry;
 
     done(null, val);
-  }
-  this.store.get(key, storeIODone);
+  });
 };
 
 /**
@@ -186,35 +185,35 @@ LRUList.prototype.get = function(key, done) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.remove = function(key, done) {
-  done = done || function() {};
+  done = done || function removeDoneNoOp() {};
   var self = this;
 
-  function storeIODone(err) {
-    if (err) { done(err); return; }
+  this.store.del(key, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     var entry = self.keymap[key];
-    if (!entry) { done(null); return; }
+    if (!entry) { done(null); return; } // Key miss.
 
     delete self.keymap[entry.key];
 
     if (entry.newer && entry.older) {
+      // Connect adjacent entries to fill the future gap it will leave.
       entry.older.newer = entry.newer;
       entry.newer.older = entry.older;
-    } else if (entry.newer) {
+    } else if (entry.newer) { // Removing head.
       entry.newer.older = undefined;
       self.head = entry.newer;
-    } else if (entry.older) {
+    } else if (entry.older) { // Removing tail.
       entry.older.newer = undefined;
       self.tail = entry.older;
-    } else {
+    } else { // Removing sole key in list.
       self.head = self.tail = undefined;
     }
 
     self.size--;
 
     done(null);
-  }
-  this.store.del(key, storeIODone);
+  });
 }
 
 /**
