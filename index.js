@@ -1,7 +1,5 @@
 /**
- * Storage agnostic LRU list.
- *   Uses doubly-linked list and key map.
- *   Supports async get, set, etc.
+ * Storage agnostic LRU list w/ async value IO
  *
  * Based on https://github.com/rsms/js-lru
  *   Licensed under MIT.

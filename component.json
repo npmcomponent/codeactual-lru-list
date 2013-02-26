@@ -1,9 +1,10 @@
 {
   "name": "lru-list",
-  "repo": "codeactual/lru-list-component",
-  "description": "Storage agnostic LRU list",
-  "version": "0.0.1",
+  "repo": "codeactual/lru-list",
+  "description": "Storage-agnostic LRU list w/ async value IO",
+  "version": "1.0.0",
   "keywords": [
+    "lru",
     "cache",
     "utility"
   ],

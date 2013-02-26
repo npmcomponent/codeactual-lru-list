@@ -1,7 +1,7 @@
 {
-  "name": "codeactual-lru-list-component",
-  "description": "Storage agnostic LRU list",
-  "version": "0.0.1",
+  "name": "codeactual-lru-list",
+  "description": "Storage-agnostic LRU list w/ async value IO",
+  "version": "1.0.0",
   "devDependencies": {
     "chai": "1.5.0",
     "mocha": "1.8.1"
