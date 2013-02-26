@@ -4,7 +4,12 @@
  * Based on https://github.com/rsms/js-lru
  *   Licensed under MIT.
  *   Copyright (c) 2010 Rasmus Andersson <http://hunch.se/>
- *   Illustration of the original design:
+ *
+ * Additions to rsms/js-lru:
+ *   Licensed under MIT.
+ *   Copyright (c) 2013 David Smith <https://github.com/codeactual/>
+ *
+ * Original illustration of the design from rsms/js-lru:
  *
  *    entry             entry             entry             entry
  *    ______            ______            ______            ______
