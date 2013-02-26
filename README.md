@@ -2,6 +2,8 @@
 
 Storage-agnostic LRU list w/ async value IO.
 
+[![Build Status](https://travis-ci.org/codeactual/lru-list.png)](https://travis-ci.org/codeactual/lru-list)
+
 ## Example
 
 ```js
