@@ -41,9 +41,15 @@ list.keys(); // ['key1', 'key2', ...]
 
 ### [Component](https://github.com/component/component)
 
+#### Install to `components/`
+
     $ component install codeactual/lru-list
 
-### NPM
+#### Build standalone file
+
+    $ make dist
+
+#### NPM
 
     $ npm install codeactual-lru-list
 
