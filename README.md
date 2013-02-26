@@ -41,11 +41,11 @@ list.keys(); // ['key1', 'key2', ...]
 
 ### [Component](https://github.com/component/component)
 
-#### Install to `components/`
+Install to `components/`:
 
     $ component install codeactual/lru-list
 
-#### Build standalone file
+Build standalone file in `build/`:
 
     $ make dist
 
