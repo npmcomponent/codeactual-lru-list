@@ -59,29 +59,21 @@ Build standalone file in `build/`:
 
 Create a new `LRUList` based on `config` fields:
 
-### {number} limit
-
-Maximum list entries.
+`{number} limit` Maximum list entries.
 
 * default: 100
 
-### {function} set(key, val, done)
-
-The callback responsible for writing a value at a given key.
+`{function} set(key, val, done)` The callback responsible for writing a value at a given key.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
 
-### {function} get(key, done)
-
-The callback responsible for reading a value at a given key.
+`{function} get(key, done)` The callback responsible for reading a value at a given key.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null, val);`
 
-### {function} remove(key, done)
-
-The callback responsible for removing key/value pair.
+`{function} remove(key, done)` The callback responsible for removing key/value pair.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
