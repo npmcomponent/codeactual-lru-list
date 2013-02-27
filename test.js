@@ -2,7 +2,7 @@ var chai = require('chai');
 var should = chai.should();
 chai.Assertion.includeStack = true;
 
-var lruList = require('./index');
+var lruList = require('./build/codeactual-lru-list');
 var LRUList = lruList.LRUList;
 var LRUEntry = lruList.LRUEntry;
 
