@@ -7,6 +7,6 @@
     "mocha": "1.8.1"
   },
   "scripts": {
-    "test" : "mocha --async-only --reporter spec test.js"
+    "test" : "make dist && mocha --async-only --reporter spec test.js"
   }
 }
