@@ -24,6 +24,8 @@ module.exports = {
   LRUEntry: LRUEntry
 };
 
+var Batch = require('batch');
+
 var emptyFn = function() {};
 
 /**
@@ -67,7 +69,7 @@ function LRUEntry(key) {
  *   May produce "orphaned" entries to which the key map no longer points. Then they
  *   can no longer be read/removed, and can only be pushed out by lack of use.
  *
- * @param {string} key
+ * @param {string|array} key
  * @param {mixed} val
  * @param {function} done
  *   {object} Error instance or null.
@@ -76,9 +78,7 @@ LRUList.prototype.put = function(key, val, done) {
   done = done || function putDoneNoOp() {};
   var self = this;
 
-  this.store.set(key, val, function storeIODone(err) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
-
+  function updateStruct(key, updDone) {
     var entry = new LRUEntry(key); // Create new tail.
     self.keymap[key] = entry;
 
@@ -92,11 +92,27 @@ LRUList.prototype.put = function(key, val, done) {
     self.tail = entry; // Assign new tail.
 
     if (self.size === self.limit) { // List size exceeded. Trim head.
-      self.shift(done);
+      self.shift(updDone);
     } else {
       self.size++;
-      done(null);
+      updDone(null);
     }
+  }
+
+  this.store.set(key, val, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+
+    var batch = new Batch;
+
+    [].concat(key).forEach(function(key) {
+      batch.push(function(keyDone) {
+        updateStruct(key, keyDone);
+      });
+    });
+
+    batch.end(function(err) {
+      done(err);
+    });
   });
 };
 

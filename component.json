@@ -8,7 +8,9 @@
     "cache",
     "utility"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "component/batch": "9316255"
+  },
   "development": {},
   "scripts": [
     "index.js"
