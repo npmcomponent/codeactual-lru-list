@@ -2,6 +2,33 @@
   "name": "codeactual-lru-list",
   "description": "Storage-agnostic LRU list w/ async value IO",
   "version": "1.0.0",
+  "keywords": [
+    "lru",
+    "cache",
+    "utility"
+  ],
+  "maintainers": [
+    {
+      "name": "David Smith",
+      "web": "https://github.com/codeactual/"
+    }
+  ],
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/codeactual/lru-list/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/codeactual/lru-list/blob/master/LICENSE"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://codeactual@github.com/codeactual/lru-list.git"
+    }
+  ],
   "devDependencies": {
     "chai": "1.5.0",
     "mocha": "1.8.1"
