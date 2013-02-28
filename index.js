@@ -65,6 +65,14 @@ function LRUEntry(key) {
   this.newer = undefined;
 }
 
+/**
+ * Apply a put/putMulti operation to the list/map structures.
+ *
+ * @param {string} key
+ * @param {mixed} val
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
 LRUList.prototype._updateStructForPut = function(key, val, done) {
   var entry = new LRUEntry(key); // Create new tail.
   this.keymap[key] = entry;
@@ -86,6 +94,17 @@ LRUList.prototype._updateStructForPut = function(key, val, done) {
   }
 };
 
+/**
+ * Append keys to the list's tail in object-key order. Trigger storage of the values.
+ *
+ * - Duplicate keys are allowed by original design.
+ *   May produce "orphaned" entries to which the key map no longer points. Then they
+ *   can no longer be read/removed, and can only be pushed out by lack of use.
+ *
+ * @param {object} pairs
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
 LRUList.prototype.putMulti = function(pairs, done) {
   done = done || function putMultiDoneNoOp() {};
   var self = this;
@@ -164,7 +183,11 @@ LRUList.prototype.shift = function(done) {
   });
 };
 
-
+/**
+ * Apply a get/getMulti operation to the list/map structures.
+ *
+ * @param {object} entry LRUEntry instance.
+ */
 LRUList.prototype._updateStructForGet = function(entry) {
   if (entry.newer) { // Key has more-recently-used than it.
     if (entry === this.head) {
@@ -187,6 +210,14 @@ LRUList.prototype._updateStructForGet = function(entry) {
   this.tail = entry;
 };
 
+/**
+ * Promote the keys to the tail (MRU) in array order. Read the values from storage.
+ *
+ * @param {array} keys
+ * @param {function} done
+ *   {object} Error instance or null.
+ *   {mixed} Value or undefined.
+ */
 LRUList.prototype.getMulti = function(keys, done) {
   done = done || function getMultiDoneNoOp() {};
   var self = this;
@@ -227,6 +258,11 @@ LRUList.prototype.get = function(key, done) {
   });
 };
 
+/**
+ * Apply a remove/removeMulti operation to the list/map structures.
+ *
+ * @param {string} key
+ */
 LRUList.prototype._updateStructForRemove = function(key) {
   var entry = this.keymap[key];
   if (!entry) { return; } // Key miss.
@@ -250,6 +286,13 @@ LRUList.prototype._updateStructForRemove = function(key) {
   this.size--;
 };
 
+/**
+ * Remove keys from the list and key map. Trigger removal of the values.
+ *
+ * @param {array} keys
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
 LRUList.prototype.removeMulti = function(keys, done) {
   done = done || function removeDoneNoOp() {};
   var self = this;
