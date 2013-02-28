@@ -1,6 +1,6 @@
 # lru-list
 
-Storage-agnostic LRU list w/ async value IO.
+Storage-agnostic LRU list with async/multi-key operations.
 
 [![Build Status](https://travis-ci.org/codeactual/lru-list.png)](https://travis-ci.org/codeactual/lru-list)
 
