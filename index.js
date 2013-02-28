@@ -25,39 +25,32 @@ module.exports = {
 };
 
 var Batch = require('batch');
+var Configurable = require('configurable.js');
 
 var emptyFn = function() {};
 
 /**
- * @param {object} config
- *   {number} [limit=100]
- *   {function} set(key, val, done)
- *     done(err)
- *   {function} get(key, done)
- *     done(err, val)
- *   {function} del(key, done)
- *     done(err)
- *
- * done() callbacks:
- *   'err' should be an Error instance.
- *   List structures will not be modified on truthy 'err'.
+ * See https://github.com/codeactual/lru-list#api for configurable settings.
  */
-function LRUList(config) {
-  config = config || {};
+function LRUList() {
   this.size = 0;
+
   this.tail = undefined;
   this.head = undefined;
-  this.limit = config.limit || 100;
-  this.store = {
-    set: config.set || emptyFn,
-    setMulti: config.setMulti || emptyFn,
-    get: config.get || emptyFn,
-    getMulti: config.getMulti || emptyFn,
-    del: config.del || emptyFn,
-    delMulti: config.delMulti || emptyFn
-  };
   this.keymap = {};
+
+  this.settings = {
+    limit: 100,
+    set: emptyFn,
+    setMulti: emptyFn,
+    get: emptyFn,
+    getMulti: emptyFn,
+    del: emptyFn,
+    delMulti: emptyFn
+  };
 }
+
+Configurable(LRUList.prototype);
 
 function LRUEntry(key) {
   this.key = key;
@@ -80,7 +73,7 @@ function LRUEntry(key) {
 LRUList.prototype.put = function(key, val, done) {
   done = done || function putDoneNoOp() {};
   var self = this;
-  this.store.set(key, val, function storeIODone(err) {
+  this.settings.set(key, val, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
     self._updateStructForPut(key, val, done);
   });
@@ -101,7 +94,7 @@ LRUList.prototype.putMulti = function(pairs, done) {
   done = done || function putMultiDoneNoOp() {};
   var self = this;
 
-  this.store.setMulti(pairs, function storeIODone(err) {
+  this.settings.setMulti(pairs, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     var batch = new Batch();
@@ -139,7 +132,7 @@ LRUList.prototype._updateStructForPut = function(key, val, done) {
 
   this.tail = entry; // Assign new tail.
 
-  if (this.size === this.limit) { // List size exceeded. Trim head.
+  if (this.size === this.settings.limit) { // List size exceeded. Trim head.
     this.shift(done);
   } else {
     this.size++;
@@ -164,7 +157,7 @@ LRUList.prototype.shift = function(done) {
     return;
   }
 
-  this.store.del(entry.key, function storeIODone(err) {
+  this.settings.del(entry.key, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     if (self.head.newer) { // 2nd-to-head is now head.
@@ -195,7 +188,7 @@ LRUList.prototype.get = function(key, done) {
   done = done || function getDoneNoOp() {};
   var self = this;
 
-  this.store.get(key, function storeIODone(err, val) {
+  this.settings.get(key, function storeIODone(err, val) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     var entry = self.keymap[key];
@@ -219,7 +212,7 @@ LRUList.prototype.getMulti = function(keys, done) {
   done = done || function getMultiDoneNoOp() {};
   var self = this;
 
-  this.store.getMulti(keys, function storeIODone(err, pairs) {
+  this.settings.getMulti(keys, function storeIODone(err, pairs) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       var entry = self.keymap[keys[k]];
@@ -269,7 +262,7 @@ LRUList.prototype.remove = function(key, done) {
   done = done || function removeDoneNoOp() {};
   var self = this;
 
-  this.store.del(key, function storeIODone(err) {
+  this.settings.del(key, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
     self._updateStructForRemove(key);
     done(null);
@@ -287,7 +280,7 @@ LRUList.prototype.removeMulti = function(keys, done) {
   done = done || function removeDoneNoOp() {};
   var self = this;
 
-  this.store.delMulti(keys, function storeIODone(err) {
+  this.settings.delMulti(keys, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       self._updateStructForRemove(keys[k]);

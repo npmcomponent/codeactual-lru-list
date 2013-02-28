@@ -43,26 +43,10 @@ describe('LRUList', function() {
     it('should init state', function(done) {
       var list = new LRUList();
       list.size.should.equal(0);
-      list.limit.should.equal(100);
-      list.store.set.should.be.instanceOf(Function);
-      list.store.get.should.be.instanceOf(Function);
-      list.store.del.should.be.instanceOf(Function);
-      done();
-    });
-
-    it('should accept state', function(done) {
-      var state = {
-        limit: 5,
-        set: emptyFn,
-        get: emptyFn,
-        del: emptyFn
-      };
-      var list = new LRUList(state);
-      list.size.should.equal(0);
-      list.limit.should.equal(state.limit);
-      list.store.set.should.deep.equal(state.set);
-      list.store.get.should.deep.equal(state.get);
-      list.store.del.should.deep.equal(state.del);
+      list.settings.limit.should.equal(100);
+      list.settings.set.should.be.instanceOf(Function);
+      list.settings.get.should.be.instanceOf(Function);
+      list.settings.del.should.be.instanceOf(Function);
       done();
     });
   });
@@ -326,7 +310,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
-        list.store.del = delErrCb;
+        list.settings.del = delErrCb;
         list.shift(function shiftDone() {
           list.keymap.should.deep.equal(self.oneKeyMap);
           done();
@@ -378,7 +362,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
-        list.store.del = delErrCb;
+        list.settings.del = delErrCb;
         list.shift(function shiftDone() {
           list.head.key.should.equal(self.keys[0]);
           done();
@@ -403,7 +387,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
-        list.store.get = getErrCb;
+        list.settings.get = getErrCb;
         list.get(self.keys[0], function getDone(err) {
           should.equal(err, storeErr);
           done();
@@ -488,7 +472,7 @@ describe('LRUList', function() {
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
         list.put(self.keys[1], self.vals[1], function put2Done() {
-          list.store.get = getErrCb;
+          list.settings.get = getErrCb;
           list.get(self.keys[0], function getDone() {
             list.tail.key.should.equal(self.keys[1]);
             done();
@@ -514,7 +498,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.putMulti(this.pairs, function putDone() {
-        list.store.getMulti = getMultiErrCb;
+        list.settings.getMulti = getMultiErrCb;
         list.getMulti(self.keys[0], function getDone(err) {
           should.equal(err, storeErr);
           done();
@@ -589,7 +573,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.putMulti(this.pairs, function putDone() {
-        list.store.getMulti = getMultiErrCb;
+        list.settings.getMulti = getMultiErrCb;
         list.getMulti([self.keys[0]], function getDone() {
           list.tail.key.should.equal(self.keys[self.keys.length - 1]);
           done();
@@ -628,7 +612,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
-        list.store.del = delErrCb;
+        list.settings.del = delErrCb;
         list.remove(self.keys[0], function() {
           list.keymap.should.deep.equal(self.oneKeyMap);
           done();
@@ -724,7 +708,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
-        list.store.del = delErrCb;
+        list.settings.del = delErrCb;
         list.remove(self.keys[0], function delDone() {
           list.head.key.should.equal(self.keys[0]);
           done();
@@ -763,7 +747,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.putMulti(this.pairs, function putDone() {
-        list.store.delMulti = delMultiErrCb;
+        list.settings.delMulti = delMultiErrCb;
         list.removeMulti(self.keys, function removeDone() {
           list.keymap.should.deep.equal(self.multiKeyMap);
           done();
@@ -850,7 +834,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.putMulti(this.pairs, function putDone() {
-        list.store.delMulti = getMultiErrCb;
+        list.settings.delMulti = getMultiErrCb;
         list.removeMulti(self.keys, function removeDone() {
           list.storage.should.deep.equal(self.pairs);
           done();
@@ -905,52 +889,53 @@ function callFnAtArgWith(pos, payload) {
 }
 function newList(limit) {
   var storage = {};
-  var list = new LRUList({
-    limit: limit,
-    set: function(key, val, done) {
-      storage[key] = val;
-      done(null);
-    },
-    setMulti: function(pairs, done) {
-      for (var k = 0, keys = Object.keys(pairs); k < keys.length; k++) {
-        storage[keys[k]] = pairs[keys[k]];
-      }
-      done(null);
-    },
-    get: function(key, done) {
-      done(null, storage[key]);
-    },
-    getMulti: function(keys, done) {
-      var pairs = {};
-      for (var k = 0; k < keys.length; k++) {
-        if (storage.hasOwnProperty(keys[k])) {
-          pairs[keys[k]] = storage[keys[k]];
+  var list = new LRUList();
+
+  list.set('limit', limit)
+      .set('set', function(key, val, done) {
+        storage[key] = val;
+        done(null);
+      })
+      .set('setMulti', function(pairs, done) {
+        for (var k = 0, keys = Object.keys(pairs); k < keys.length; k++) {
+          storage[keys[k]] = pairs[keys[k]];
         }
-      }
-      done(null, pairs);
-    },
-    del: function(key, done) {
-      delete storage[key];
-      done(null);
-    },
-    delMulti: function(keys, done) {
-      for (var k = 0; k < keys.length; k++) {
-        delete storage[keys[k]];
-      }
-      done(null);
-    }
-  });
-  list.storage = storage;
+        done(null);
+      })
+      .set('get', function(key, done) {
+        done(null, storage[key]);
+      })
+      .set('getMulti', function(keys, done) {
+        var pairs = {};
+        for (var k = 0; k < keys.length; k++) {
+          if (storage.hasOwnProperty(keys[k])) {
+            pairs[keys[k]] = storage[keys[k]];
+          }
+        }
+        done(null, pairs);
+      })
+      .set('del', function(key, done) {
+        delete storage[key];
+        done(null);
+      })
+      .set('delMulti', function(keys, done) {
+        for (var k = 0; k < keys.length; k++) {
+          delete storage[keys[k]];
+        }
+        done(null);
+      });
+
+  list.storage = storage; // Expose for tests.
+
   return list;
 }
 function newListWithBrokenIO(limit) {
-  return new LRUList({
-    limit: limit,
-    set: setErrCb,
-    setMulti: setMultiErrCb,
-    get: getErrCb,
-    getMulti: getMultiErrCb,
-    del: delErrCb,
-    delMulti: delMultiErrCb
-  });
+  var list = new LRUList();
+  list.set('set', setErrCb)
+      .set('setMulti', setMultiErrCb)
+      .set('get', getErrCb)
+      .set('getMulti', getMultiErrCb)
+      .set('del', delErrCb)
+      .set('delMulti', delMultiErrCb);
+  return list;
 }
