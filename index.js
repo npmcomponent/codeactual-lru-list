@@ -199,6 +199,7 @@ LRUList.prototype.getMulti = function(keys, done) {
       if (entry === self.tail) { continue; } // Key already MRU.
       self._updateStructForGet(entry);
     }
+    done(null, pairs);
   });
 };
 
