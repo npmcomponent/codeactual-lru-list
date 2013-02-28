@@ -184,6 +184,29 @@ describe('LRUList', function() {
       });
     });
 
+    it('should update list', function(done) {
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.shift(function shiftDone() {
+          should.not.exist(list.head);
+          done();
+        });
+      });
+    });
+
+    it('should not update list on error', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.store.del = storeErrCb;
+        list.shift(function shiftDone() {
+          list.keymap.should.deep.equal(self.oneKeyListEntry);
+          list.head.key.should.equal(self.key);
+          done();
+        });
+      });
+    });
+
     it('should update key map', function(done) {
       var list = newList();
       list.put(this.key, this.val, function putDone() {

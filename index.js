@@ -133,19 +133,19 @@ LRUList.prototype.shift = function(done) {
     return;
   }
 
-  if (this.head.newer) { // 2nd-to-head is now head.
-    this.head = this.head.newer;
-    this.head.older = undefined;
-  } else { // Head was the only entry.
-    this.head = undefined;
-  }
-
-  // Remove last strong reference to <entry> and remove links from the purged
-  // entry being returned.
-  entry.newer = entry.older = undefined;
-
   this.store.del(entry.key, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
+
+    if (self.head.newer) { // 2nd-to-head is now head.
+      self.head = self.head.newer;
+      self.head.older = undefined;
+    } else { // Head was the only entry.
+      self.head = undefined;
+    }
+
+    // Remove last strong reference to <entry> and remove links from the purged
+    // entry being returned.
+    entry.newer = entry.older = undefined;
 
     delete self.keymap[entry.key];
     done(null, entry);

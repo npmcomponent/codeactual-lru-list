@@ -123,6 +123,10 @@ npm test
 
 # Change Log
 
+## 1.1.0
+
+* Fix: shift() did not wait for storage deletion success before updating list.
+
 ## 1.0.0
 
 * Added initial API and tests for: `put`, `shift`, `get`, `remove`, `keys`.
