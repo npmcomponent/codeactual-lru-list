@@ -172,6 +172,40 @@ describe('LRUList', function() {
     });
   });
 
+  describe('#putMulti()', function() {
+    it('should propagate IO success', function(done) {
+      done(); // TODO
+    });
+
+    it('should propagate IO error', function(done) {
+      done(); // TODO
+    });
+
+    it('should update key map', function(done) {
+      done(); // TODO
+    });
+
+    it('should not update key map on error', function(done) {
+      done(); // TODO
+    });
+
+    it('should update store', function(done) {
+      done(); // TODO
+    });
+
+    it('should limit list', function(done) {
+      done(); // TODO
+    });
+
+    it('should let dupe keys push out older', function(done) {
+      done(); // TODO
+    });
+
+    it('should not update list on error', function(done) {
+      done(); // TODO
+    });
+  });
+
   describe('#shift()', function() {
     it('should handle empty list', function(done) {
       newList().shift(function cb(err) {
@@ -401,6 +435,36 @@ describe('LRUList', function() {
           });
         });
       });
+    });
+  });
+
+  describe('#getMulti()', function() {
+    it('should propagate IO success', function(done) {
+      done(); // TODO
+    });
+
+    it('should propagate IO error', function(done) {
+      done(); // TODO
+    });
+
+    it('should raise from middle of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should not move newest of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should raise from middle of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should raise from oldest of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should not update list on error', function(done) {
+      done(); // TODO
     });
   });
 
