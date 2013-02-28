@@ -246,6 +246,19 @@ LRUList.prototype._updateStructForRemove = function(key) {
   this.size--;
 };
 
+LRUList.prototype.removeMulti = function(keys, done) {
+  done = done || function removeDoneNoOp() {};
+  var self = this;
+
+  this.store.delMulti(keys, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    for (var k = 0; k < keys.length; k++) {
+      self._updateStructForRemove(keys[k]);
+    }
+    done(null);
+  });
+};
+
 /**
  * Remove the key from the list and key map. Trigger removal of the value.
  *
