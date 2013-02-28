@@ -105,7 +105,7 @@ Settings updatable via [configurable.js](https://github.com/visionmedia/configur
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
 
-`{function} removeMulti(keys, done)` The callback responsible for removing multiple key/value pair.
+`{function} removeMulti(keys, done)` The callback responsible for removing a set of key/value pairs.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
