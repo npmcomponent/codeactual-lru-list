@@ -29,11 +29,14 @@
       "url": "https://codeactual@github.com/codeactual/lru-list.git"
     }
   ],
+  "dependencies": {
+    "component": "0.13.0"
+  },
   "devDependencies": {
     "chai": "1.5.0",
     "mocha": "1.8.1"
   },
   "scripts": {
-    "test" : "make dist && mocha --async-only --reporter spec test.js"
+    "test": "make dist && mocha --async-only --reporter spec test.js"
   }
 }
