@@ -843,6 +843,22 @@ describe('LRUList', function() {
     });
   });
 
+  describe('#has()', function() {
+    it('should detect presence', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.keys[0], this.vals[0], function putDone() {
+        list.has(self.keys[0]).should.be.ok;
+        done();
+      });
+    });
+
+    it('should detect absence', function(done) {
+      newList().has(this.keys[0]).should.not.be.ok;
+      done();
+    });
+  });
+
   describe('integration', function() {
     it('should handle put/get/remove cycle', function(done) {
       var self = this;

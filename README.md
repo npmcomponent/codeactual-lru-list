@@ -156,6 +156,10 @@ Remove the keys from the list and key map, in array order. Trigger removal of th
 
 Produce a head-to-tail ordered key list.
 
+### Boolean#has(key)
+
+Check if a key exists.
+
 ## License
 
   MIT
@@ -175,7 +179,7 @@ npm test
 
 * Replaced: LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
 * Replaced: Default 100 entry limit with no limit.
-* Added: `putMulti`,  `getMulti`, `removeMulti`.
+* Added: `putMulti`,  `getMulti`, `removeMulti`, `has`.
 * Fix: shift() did not wait for storage deletion success before updating list.
 
 ## 1.0.0

@@ -335,3 +335,13 @@ LRUList.prototype.keys = function() {
   }
   return arr;
 };
+
+/**
+ * Check if a key exists.
+ *
+ * @param {string} key
+ * @return {boolean}
+ */
+LRUList.prototype.has = function(key) {
+  return typeof this.keymap[key] !== 'undefined';
+};
