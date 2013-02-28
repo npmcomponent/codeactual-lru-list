@@ -81,6 +81,23 @@ describe('LRUList', function() {
       list.put(this.key, this.val, cb);
     });
 
+    it('should update list', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.head.key.should.equal(self.key);
+        done();
+      });
+    });
+
+    it('should not update list on error', function(done) {
+      var list = newListWithBrokenIO();
+      list.put(this.key, this.val, function putDone() {
+        should.not.exist(list.head);
+        done();
+      });
+    });
+
     it('should update key map', function(done) {
       var self = this;
       var list = newList();
