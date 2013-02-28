@@ -70,9 +70,11 @@ Build standalone file in `build/`:
 
 ## API
 
-### LRUList(config)
+### LRUList()
 
-Create a new `LRUList` based on `config` fields:
+Create a new `LRUList`.
+
+Settings updatable via [configurable.js](https://github.com/visionmedia/configurable.js) `#set()` API:
 
 `{number} limit` Maximum list entries.
 
@@ -83,12 +85,27 @@ Create a new `LRUList` based on `config` fields:
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
 
+`{function} setMulti(pairs, done)` The callback responsible for writing a set of key/value pairs.
+
+* To indicate an error: `done(new Error('reason'));`
+* To indicate an success: `done(null);`
+
 `{function} get(key, done)` The callback responsible for reading a value at a given key.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null, val);`
 
+`{function} getMulti(keys, done)` The callback responsible for reading values at given key set.
+
+* To indicate an error: `done(new Error('reason'));`
+* To indicate an success: `done(null, pairs);`
+
 `{function} remove(key, done)` The callback responsible for removing key/value pair.
+
+* To indicate an error: `done(new Error('reason'));`
+* To indicate an success: `done(null);`
+
+`{function} removeMulti(keys, done)` The callback responsible for removing multiple key/value pair.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
