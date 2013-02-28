@@ -1,5 +1,5 @@
 /**
- * Storage agnostic LRU list w/ async value IO
+ * Storage-agnostic LRU list with async/multi-key operations.
  *
  * Based on https://github.com/rsms/js-lru
  *   Licensed under MIT.
