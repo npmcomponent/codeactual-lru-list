@@ -262,7 +262,6 @@ describe('LRUList', function() {
       list.put(this.key, this.val, function putDone() {
         list.store.del = storeErrCb;
         list.shift(function shiftDone() {
-          list.keymap.should.deep.equal(self.oneKeyListEntry);
           list.head.key.should.equal(self.key);
           done();
         });
@@ -525,6 +524,18 @@ describe('LRUList', function() {
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, addSnapshot);
       list.remove('a', endSnapshots);
+    });
+
+    it('should not update list on error', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.store.del = storeErrCb;
+        list.remove(self.key, function delDone() {
+          list.head.key.should.equal(self.key);
+          done();
+        });
+      });
     });
   });
 
