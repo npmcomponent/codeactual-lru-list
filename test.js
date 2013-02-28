@@ -772,23 +772,90 @@ describe('LRUList', function() {
     });
 
     it('should update store', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      list.putMulti(this.pairs, function putDone() {
+        list.storage.should.deep.equal(self.pairs);
+        list.removeMulti(self.keys, function removeDone() {
+          list.storage.should.deep.equal({});
+          done();
+        });
+      });
     });
 
     it('should remove newest of list', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.keys());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            self.keys,
+            [self.keys[0], self.keys[1]]
+          ]
+        );
+        done();
+      }
+      list.putMulti(this.pairs, addSnapshot);
+      list.removeMulti([this.keys[2]], endSnapshots);
     });
 
     it('should remove middle of list', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.keys());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            self.keys,
+            [self.keys[0], self.keys[2]]
+          ]
+        );
+        done();
+      }
+      list.putMulti(this.pairs, addSnapshot);
+      list.removeMulti([this.keys[1]], endSnapshots);
     });
 
     it('should remove oldest of list', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.keys());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            self.keys,
+            [self.keys[1], self.keys[2]]
+          ]
+        );
+        done();
+      }
+      list.putMulti(this.pairs, addSnapshot);
+      list.removeMulti([this.keys[0]], endSnapshots);
     });
 
     it('should not update list on error', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      list.putMulti(this.pairs, function putDone() {
+        list.store.delMulti = getMultiErrCb;
+        list.removeMulti(self.keys, function removeDone() {
+          list.storage.should.deep.equal(self.pairs);
+          done();
+        });
+      });
     });
   });
 
