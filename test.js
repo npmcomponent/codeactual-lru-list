@@ -83,23 +83,6 @@ describe('LRUList', function() {
       list.put(this.key, this.val, cb);
     });
 
-    it('should update list', function(done) {
-      var self = this;
-      var list = newList();
-      list.put(this.key, this.val, function putDone() {
-        list.head.key.should.equal(self.key);
-        done();
-      });
-    });
-
-    it('should not update list on error', function(done) {
-      var list = newListWithBrokenIO();
-      list.put(this.key, this.val, function putDone() {
-        should.not.exist(list.head);
-        done();
-      });
-    });
-
     it('should update key map', function(done) {
       var self = this;
       var list = newList();
@@ -179,6 +162,14 @@ describe('LRUList', function() {
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, endSnapshots);
     });
+
+    it('should not update list on error', function(done) {
+      var list = newListWithBrokenIO();
+      list.put(this.key, this.val, function putDone() {
+        should.not.exist(list.head);
+        done();
+      });
+    });
   });
 
   describe('#shift()', function() {
@@ -200,29 +191,6 @@ describe('LRUList', function() {
       newListWithBrokenIO().put(this.key, this.val, function cb(err) {
         should.equal(err, storeErr);
         done();
-      });
-    });
-
-    it('should update list', function(done) {
-      var list = newList();
-      list.put(this.key, this.val, function putDone() {
-        list.shift(function shiftDone() {
-          should.not.exist(list.head);
-          done();
-        });
-      });
-    });
-
-    it('should not update list on error', function(done) {
-      var self = this;
-      var list = newList();
-      list.put(this.key, this.val, function putDone() {
-        list.store.del = storeErrCb;
-        list.shift(function shiftDone() {
-          list.keymap.should.deep.equal(self.oneKeyListEntry);
-          list.head.key.should.equal(self.key);
-          done();
-        });
       });
     });
 
@@ -286,6 +254,19 @@ describe('LRUList', function() {
       list.shift(addSnapshot);
       list.shift(addSnapshot);
       list.shift(endSnapshots);
+    });
+
+    it('should not update list on error', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.store.del = storeErrCb;
+        list.shift(function shiftDone() {
+          list.keymap.should.deep.equal(self.oneKeyListEntry);
+          list.head.key.should.equal(self.key);
+          done();
+        });
+      });
     });
   });
 
@@ -407,19 +388,6 @@ describe('LRUList', function() {
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, addSnapshot);
       list.get('a', endSnapshots);
-    });
-
-    it('should update list', function(done) {
-      var self = this;
-      var list = newList();
-      list.put(this.key, this.val, function putDone() {
-        list.put(self.key2, self.val2, function put2Done() {
-          list.get(self.key, function getDone() {
-            list.tail.key.should.equal(self.key);
-            done();
-          });
-        });
-      });
     });
 
     it('should not update list on error', function(done) {
