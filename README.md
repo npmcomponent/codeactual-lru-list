@@ -23,10 +23,10 @@ list.setOption('limit', 50)
       done(/* or Error() */);
     });
 
-list.put(key, val, function putDone(err) { /* ... */ });
+list.set(key, val, function setDone(err) { /* ... */ });
 list.shift(function shiftDone(err) { /* ... */ });
 list.get(key, function getDone(err, val) { /* ... */ });
-list.remove(key, function removeDone(err) { /* ... */ });
+list.del(key, function delDone(err) { /* ... */ });
 list.keys(); // ['key1', 'key2', ...]
 ```
 
@@ -47,9 +47,9 @@ list.setOption('setMulti', function(pairs, done) {
       done(/* or Error() */);
     });
 
-list.putMulti(pairs, function putMultiDone(err) { /* ... */ });
+list.setMulti(pairs, function setMultiDone(err) { /* ... */ });
 list.getMulti(keys, function getMultiDone(err, pairs) { /* ... */ });
-list.removeMulti(keys, function removeMultiDone(err) { /* ... */ });
+list.delMulti(keys, function delMultiDone(err) { /* ... */ });
 ```
 
 ## Installation
@@ -100,23 +100,23 @@ Create a new `LRUList`.
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null, pairs);`
 
-`{function} remove(key, done)` The callback responsible for removing key/value pair.
+`{function} del(key, done)` The callback responsible for removing key/value pair.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
 
-`{function} removeMulti(keys, done)` The callback responsible for removing a set of key/value pairs.
+`{function} delMulti(keys, done)` The callback responsible for removing a set of key/value pairs.
 
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
 
-### #put(key, value, fn)
+### #set(key, value, fn)
 
 Append key to the list's tail. Trigger storage of the value.
 
 `fn` receives `(<null|Error>)`.
 
-### #putMulti(pairs, fn)
+### #setMulti(pairs, fn)
 
 Append keys to the list's tail in object-key order. Trigger storage of the values.
 
@@ -140,19 +140,19 @@ Promote the keys to the tail (MRU) in array order. Read the values from storage.
 
 `fn` receives `(<undefined|Error>, <undefined|pairs>)`.
 
-### #remove(key, fn)
+### #del(key, fn)
 
 Remove the key from the list and key map. Trigger removal of the value.
 
 `fn` receives `(<undefined|Error>)`.
 
-### #removeMulti(keys, fn)
+### #delMulti(keys, fn)
 
 Remove the keys from the list and key map, in array order. Trigger removal of the values.
 
 `fn` receives `(<undefined|Error>)`.
 
-### #removeAll(fn)
+### #delAll(fn)
 
 Clear the list and key map. Trigger removal of all values.
 
@@ -195,12 +195,13 @@ npm test
 
 ## 1.1.0
 
+* Rename: `put*` to `set*`, `remove*` to `del*`.
 * Replaced: LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
 * Replaced: Default 100 entry limit with no limit.
-* Added: `putMulti`,  `getMulti`, `removeMulti`, `has`, `removeAll`.
+* Added: `setMulti`,  `getMulti`, `delMulti`, `has`, `delAll`.
 * Added: Serialization of list to the storage backend and keymap regeneration via `saveStruct` and `restoreStruct`.
 * Fix: shift() did not wait for storage deletion success before updating list.
 
 ## 1.0.0
 
-* Added: initial API and tests for `put`, `shift`, `get`, `remove`, `keys`.
+* Added: initial API and tests for `set`, `shift`, `get`, `del`, `keys`.

@@ -64,10 +64,10 @@ describe('LRUList', function() {
     });
   });
 
-  describe('#put()', function() {
+  describe('#set()', function() {
     it('should propagate IO success', function(done) {
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function (err) {
+      list.set(this.keys[0], this.vals[0], function (err) {
         should.equal(err, null);
         done();
       });
@@ -75,7 +75,7 @@ describe('LRUList', function() {
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      list.put(this.keys[0], this.vals[0], function (err) {
+      list.set(this.keys[0], this.vals[0], function (err) {
         should.equal(err, storeErr);
         done();
       });
@@ -84,7 +84,7 @@ describe('LRUList', function() {
     it('should update key map', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.keymap.should.deep.equal(self.oneKeyMap);
         done();
       });
@@ -92,7 +92,7 @@ describe('LRUList', function() {
 
     it('should not update key map on error', function(done) {
       var list = newListWithBrokenIO();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.keymap.should.deep.equal({});
         done();
       });
@@ -101,7 +101,7 @@ describe('LRUList', function() {
     it('should update store', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.storage[self.keys[0]].should.equal(self.vals[0]);
         done();
       });
@@ -126,11 +126,11 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
-      list.put('d', this.vals[0], addSnapshot);
-      list.put('e', this.vals[0], endSnapshots);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
+      list.set('d', this.vals[0], addSnapshot);
+      list.set('e', this.vals[0], endSnapshots);
     });
 
     it('should keep dupe keys for eventual shift', function(done) {
@@ -153,27 +153,27 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], endSnapshots);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], endSnapshots);
     });
 
     it('should not update list on error', function(done) {
       var list = newListWithBrokenIO();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         should.not.exist(list.head);
         done();
       });
     });
   });
 
-  describe('#putMulti()', function() {
+  describe('#setMulti()', function() {
     it('should propagate IO success', function(done) {
       var list = newList();
-      list.putMulti(this.pairs, function (err) {
+      list.setMulti(this.pairs, function (err) {
         should.equal(err, null);
         done();
       });
@@ -181,7 +181,7 @@ describe('LRUList', function() {
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      list.putMulti(this.pairs, function (err) {
+      list.setMulti(this.pairs, function (err) {
         should.equal(err, storeErr);
         done();
       });
@@ -190,7 +190,7 @@ describe('LRUList', function() {
     it('should update key map', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.keymap.should.deep.equal(self.multiKeyMap);
         done();
       });
@@ -198,7 +198,7 @@ describe('LRUList', function() {
 
     it('should not update key map on error', function(done) {
       var list = newListWithBrokenIO();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.keymap.should.deep.equal({});
         done();
       });
@@ -207,7 +207,7 @@ describe('LRUList', function() {
     it('should update store', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         for (var k = 0; k < self.keys.length; k++) {
           list.storage[self.keys[k]].should.equal(self.vals[k]);
         }
@@ -233,9 +233,9 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
-      list.putMulti(this.pairs, addSnapshot);
-      list.putMulti(this.pairs, endSnapshots);
+      list.setMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, endSnapshots);
     });
 
     it('should keep dupe keys for eventual shift', function(done) {
@@ -256,14 +256,14 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
-      list.putMulti(this.pairs, addSnapshot);
-      list.putMulti(this.pairs, endSnapshots);
+      list.setMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, endSnapshots);
     });
 
     it('should not update list on error', function(done) {
       var list = newListWithBrokenIO();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         should.not.exist(list.head);
         done();
       });
@@ -286,7 +286,7 @@ describe('LRUList', function() {
     });
 
     it('should propagate IO error', function(done) {
-      newListWithBrokenIO().put(this.keys[0], this.vals[0], function(err) {
+      newListWithBrokenIO().set(this.keys[0], this.vals[0], function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -294,7 +294,7 @@ describe('LRUList', function() {
 
     it('should update key map', function(done) {
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.shift(function shiftDone() {
           list.keymap.should.deep.equal({});
           done();
@@ -305,7 +305,7 @@ describe('LRUList', function() {
     it('should not update key map on error', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.settings.del = delErrCb;
         list.shift(function shiftDone() {
           list.keymap.should.deep.equal(self.oneKeyMap);
@@ -317,7 +317,7 @@ describe('LRUList', function() {
     it('should update store', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.storage[self.keys[0]].should.equal(self.vals[0]);
         list.shift(function shiftDone() {
           list.storage.should.deep.equal({});
@@ -346,9 +346,9 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
       list.shift(addSnapshot);
       list.shift(addSnapshot);
       list.shift(endSnapshots);
@@ -357,7 +357,7 @@ describe('LRUList', function() {
     it('should not update list on error', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.settings.del = delErrCb;
         list.shift(function shiftDone() {
           list.head.key.should.equal(self.keys[0]);
@@ -371,7 +371,7 @@ describe('LRUList', function() {
     it('should propagate IO success', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.get(self.keys[0], function getDone(err) {
           should.equal(err, null);
           done();
@@ -382,7 +382,7 @@ describe('LRUList', function() {
     it('should propagate IO error', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.settings.get = getErrCb;
         list.get(self.keys[0], function getDone(err) {
           should.equal(err, storeErr);
@@ -409,9 +409,9 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
       list.get('c', endSnapshots);
     });
 
@@ -433,9 +433,9 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
       list.get('b', endSnapshots);
     });
 
@@ -457,17 +457,17 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
       list.get('a', endSnapshots);
     });
 
     it('should not update list on error', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
-        list.put(self.keys[1], self.vals[1], function put2Done() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
+        list.set(self.keys[1], self.vals[1], function set2Done() {
           list.settings.get = getErrCb;
           list.get(self.keys[0], function getDone() {
             list.tail.key.should.equal(self.keys[1]);
@@ -482,7 +482,7 @@ describe('LRUList', function() {
     it('should propagate IO success', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.getMulti(self.keys[0], function getDone(err) {
           should.equal(err, null);
           done();
@@ -493,7 +493,7 @@ describe('LRUList', function() {
     it('should propagate IO error', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.settings.getMulti = getMultiErrCb;
         list.getMulti(self.keys[0], function getDone(err) {
           should.equal(err, storeErr);
@@ -519,7 +519,7 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, addSnapshot);
       list.getMulti([this.keys[2]], endSnapshots);
     });
 
@@ -540,7 +540,7 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, addSnapshot);
       list.getMulti([this.keys[1]], endSnapshots);
     });
 
@@ -561,14 +561,14 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
+      list.setMulti(this.pairs, addSnapshot);
       list.getMulti([this.keys[0]], endSnapshots);
     });
 
     it('should not update list on error', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.settings.getMulti = getMultiErrCb;
         list.getMulti([self.keys[0]], function getDone() {
           list.tail.key.should.equal(self.keys[self.keys.length - 1]);
@@ -578,16 +578,16 @@ describe('LRUList', function() {
     });
   });
 
-  describe('#remove()', function() {
+  describe('#del()', function() {
     it('should propagate IO success', function(done) {
-      newList().remove(this.keys[0], function(err) {
+      newList().del(this.keys[0], function(err) {
         should.equal(err, null);
         done();
       });
     });
 
     it('should propagate IO error', function(done) {
-      newListWithBrokenIO().remove(this.keys[0], function(err) {
+      newListWithBrokenIO().del(this.keys[0], function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -596,8 +596,8 @@ describe('LRUList', function() {
     it('should update key map', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
-        list.remove(self.keys[0], function removeDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
+        list.del(self.keys[0], function delDone() {
           list.keymap.should.deep.equal({});
           done();
         });
@@ -607,9 +607,9 @@ describe('LRUList', function() {
     it('should not update key map on error', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.settings.del = delErrCb;
-        list.remove(self.keys[0], function() {
+        list.del(self.keys[0], function() {
           list.keymap.should.deep.equal(self.oneKeyMap);
           done();
         });
@@ -619,16 +619,16 @@ describe('LRUList', function() {
     it('should update store', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.storage[self.keys[0]].should.equal(self.vals[0]);
-        list.remove(self.keys[0], function removeDone() {
+        list.del(self.keys[0], function delDone() {
           list.storage.should.deep.equal({});
           done();
         });
       });
     });
 
-    it('should remove newest of list', function(done) {
+    it('should del newest of list', function(done) {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
@@ -646,13 +646,13 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
-      list.remove('c', endSnapshots);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
+      list.del('c', endSnapshots);
     });
 
-    it('should remove middle of list', function(done) {
+    it('should del middle of list', function(done) {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
@@ -670,13 +670,13 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
-      list.remove('b', endSnapshots);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
+      list.del('b', endSnapshots);
     });
 
-    it('should remove oldest of list', function(done) {
+    it('should del oldest of list', function(done) {
       var list = newList();
       var snapshots = [];
       function addSnapshot() {
@@ -694,18 +694,18 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.vals[0], addSnapshot);
-      list.put('b', this.vals[0], addSnapshot);
-      list.put('c', this.vals[0], addSnapshot);
-      list.remove('a', endSnapshots);
+      list.set('a', this.vals[0], addSnapshot);
+      list.set('b', this.vals[0], addSnapshot);
+      list.set('c', this.vals[0], addSnapshot);
+      list.del('a', endSnapshots);
     });
 
     it('should not update list on error', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.settings.del = delErrCb;
-        list.remove(self.keys[0], function delDone() {
+        list.del(self.keys[0], function delDone() {
           list.head.key.should.equal(self.keys[0]);
           done();
         });
@@ -713,16 +713,16 @@ describe('LRUList', function() {
     });
   });
 
-  describe('#removeMulti()', function() {
+  describe('#delMulti()', function() {
     it('should propagate IO success', function(done) {
-      newList().removeMulti(this.keys, function(err) {
+      newList().delMulti(this.keys, function(err) {
         should.equal(err, null);
         done();
       });
     });
 
     it('should propagate IO error', function(done) {
-      newListWithBrokenIO().remove(this.keys, function(err) {
+      newListWithBrokenIO().del(this.keys, function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -731,8 +731,8 @@ describe('LRUList', function() {
     it('should update key map', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
-        list.removeMulti(self.keys, function removeDone() {
+      list.setMulti(this.pairs, function setDone() {
+        list.delMulti(self.keys, function delDone() {
           list.keymap.should.deep.equal({});
           done();
         });
@@ -742,9 +742,9 @@ describe('LRUList', function() {
     it('should not update key map on error', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.settings.delMulti = delMultiErrCb;
-        list.removeMulti(self.keys, function removeDone() {
+        list.delMulti(self.keys, function delDone() {
           list.keymap.should.deep.equal(self.multiKeyMap);
           done();
         });
@@ -754,16 +754,16 @@ describe('LRUList', function() {
     it('should update store', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.storage.should.deep.equal(self.pairs);
-        list.removeMulti(self.keys, function removeDone() {
+        list.delMulti(self.keys, function delDone() {
           list.storage.should.deep.equal({});
           done();
         });
       });
     });
 
-    it('should remove newest of list', function(done) {
+    it('should del newest of list', function(done) {
       var self = this;
       var list = newList();
       var snapshots = [];
@@ -780,11 +780,11 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
-      list.removeMulti([this.keys[2]], endSnapshots);
+      list.setMulti(this.pairs, addSnapshot);
+      list.delMulti([this.keys[2]], endSnapshots);
     });
 
-    it('should remove middle of list', function(done) {
+    it('should del middle of list', function(done) {
       var self = this;
       var list = newList();
       var snapshots = [];
@@ -801,11 +801,11 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
-      list.removeMulti([this.keys[1]], endSnapshots);
+      list.setMulti(this.pairs, addSnapshot);
+      list.delMulti([this.keys[1]], endSnapshots);
     });
 
-    it('should remove oldest of list', function(done) {
+    it('should del oldest of list', function(done) {
       var self = this;
       var list = newList();
       var snapshots = [];
@@ -822,16 +822,16 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.putMulti(this.pairs, addSnapshot);
-      list.removeMulti([this.keys[0]], endSnapshots);
+      list.setMulti(this.pairs, addSnapshot);
+      list.delMulti([this.keys[0]], endSnapshots);
     });
 
     it('should not update list on error', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.settings.delMulti = getMultiErrCb;
-        list.removeMulti(self.keys, function removeDone() {
+        list.delMulti(self.keys, function delDone() {
           list.storage.should.deep.equal(self.pairs);
           done();
         });
@@ -843,7 +843,7 @@ describe('LRUList', function() {
     it('should detect presence', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.has(self.keys[0]).should.be.ok;
         done();
       });
@@ -855,12 +855,12 @@ describe('LRUList', function() {
     });
   });
 
-  describe('#removeAll()', function() {
-    it('should remove all keys', function(done) {
+  describe('#delAll()', function() {
+    it('should del all keys', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
-        list.removeAll(function removeDone() {
+      list.setMulti(this.pairs, function setDone() {
+        list.delAll(function delDone() {
           list.storage.should.deep.equal({});
           done();
         });
@@ -869,7 +869,7 @@ describe('LRUList', function() {
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      list.removeAll(function(err) {
+      list.delAll(function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -897,7 +897,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       var key = 'myStructureKey';
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.saveStruct(key, function saveDone() {
           list.get(key, function getDone(err, keys) {
             keys.should.deep.equal(self.keys);
@@ -929,7 +929,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       var key = 'myStructureKey';
-      list.put(key, this.keys, function putDone(err, keys) {
+      list.set(key, this.keys, function setDone(err, keys) {
         list.keys().should.deep.equal([key]);
         list.restoreStruct(key, function restoreDone() {
           list.keys().should.deep.equal(self.keys);
@@ -940,13 +940,13 @@ describe('LRUList', function() {
   });
 
   describe('integration', function() {
-    it('should perform put/get/remove cycle', function(done) {
+    it('should perform set/get/del cycle', function(done) {
       var self = this;
       var list = newList();
-      list.put(this.keys[0], this.vals[0], function putDone() {
+      list.set(this.keys[0], this.vals[0], function setDone() {
         list.get(self.keys[0], function getDone(err, val) {
           should.equal(val, self.vals[0]);
-          list.remove(self.keys[0], function delDone(err) {
+          list.del(self.keys[0], function delDone(err) {
             list.get(self.keys[0], function getDone(err, val) {
               should.not.exist(val);
               done();
@@ -956,13 +956,13 @@ describe('LRUList', function() {
       });
     });
 
-    it('should perform putMulti/getMulti/removeMulti cycle', function(done) {
+    it('should perform setMulti/getMulti/delMulti cycle', function(done) {
       var self = this;
       var list = newList();
-      list.putMulti(this.pairs, function putDone() {
+      list.setMulti(this.pairs, function setDone() {
         list.getMulti(self.keys, function getDone(err, val) {
           val.should.deep.equal(self.pairs);
-          list.removeMulti(self.keys, function delDone(err) {
+          list.delMulti(self.keys, function delDone(err) {
             list.getMulti(self.keys, function getDone(err, val) {
               val.should.deep.equal({});
               done();
