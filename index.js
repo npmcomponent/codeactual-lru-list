@@ -84,7 +84,7 @@ LRUList.prototype._updateStructForPut = function(key, val, done) {
 };
 
 LRUList.prototype.putMulti = function(pairs, done) {
-  done = done || function putDoneNoOp() {};
+  done = done || function putMultiDoneNoOp() {};
   var self = this;
 
   this.store.setMulti(pairs, function storeIODone(err) {
@@ -185,22 +185,18 @@ LRUList.prototype._updateStructForGet = function(entry) {
 };
 
 LRUList.prototype.getMulti = function(keys, done) {
+  done = done || function getMultiDoneNoOp() {};
+  var self = this;
 
-    // try to pull all keys/entries from the keymap
-    // only hit storage.get for the misses
-
-    var keys = [].concat(isMultiKey ? Object.keys(val) : key);
-    var batch = new Batch;
-
-    keys.forEach(function batchKey(key) {
-      batch.push(function batchPush(taskDone) {
-        updateStruct(key, taskDone);
-      })
-    });
-
-    batch.end(function batchEnd(err) {
-      done(err, val);
-    });
+  this.store.getMulti(keys, function storeIODone(err, pairs) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    for (var k = 0; k < keys.length; k++) {
+      var entry = self.keymap[keys[k]];
+      if (entry === undefined) { continue; } // Key miss.
+      if (entry === self.tail) { continue; } // Key already MRU.
+      self._updateStructForGet(entry);
+    }
+  });
 };
 
 /**
