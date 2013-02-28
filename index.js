@@ -93,7 +93,7 @@ LRUList.prototype.putMulti = function(pairs, done) {
   this.store.setMulti(pairs, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
-    var batch = new Batch;
+    var batch = new Batch();
 
     Object.keys(pairs).forEach(function batchKey(key) {
       batch.push(function batchPush(taskDone) {
@@ -279,7 +279,7 @@ LRUList.prototype.remove = function(key, done) {
     self._updateStructForRemove(key);
     done(null);
   });
-}
+};
 
 /**
  * Produce a head-to-tail ordered key list.
