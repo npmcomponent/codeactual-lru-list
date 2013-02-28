@@ -385,6 +385,8 @@ LRUList.prototype.restoreStruct = function(key, done) {
           });
         });
         batch.end(done);
+      } else {
+        done(null); // Nothing to restore.
       }
     });
   });

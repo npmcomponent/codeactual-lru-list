@@ -861,11 +861,21 @@ describe('LRUList', function() {
 
   describe('#saveStruct()', function() {
     it('should propagate IO success', function(done) {
-      done(); // TODO
+      var list = newList();
+      function cb(err) {
+        should.equal(err, null);
+        done();
+      }
+      list.saveStruct(this.keys[0], cb);
     });
 
     it('should propagate IO error', function(done) {
-      done(); // TODO
+      var list = newListWithBrokenIO();
+      function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      }
+      list.saveStruct(this.keys[0], cb);
     });
 
     it('should save list/map structure', function(done) {
@@ -885,11 +895,21 @@ describe('LRUList', function() {
 
   describe('#restoreStruct()', function() {
     it('should propagate IO success', function(done) {
-      done(); // TODO
+      var list = newList();
+      function cb(err) {
+        should.equal(err, null);
+        done();
+      }
+      list.restoreStruct(this.keys[0], cb);
     });
 
     it('should propagate IO error', function(done) {
-      done(); // TODO
+      var list = newListWithBrokenIO();
+      function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      }
+      list.restoreStruct(this.keys[0], cb);
     });
 
     it('should restore list/map structure', function(done) {
@@ -937,10 +957,6 @@ describe('LRUList', function() {
           });
         });
       });
-    });
-
-    it('should save and restore structure', function(done) {
-      done(); // TODO
     });
   });
 });
