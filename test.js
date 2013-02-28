@@ -588,12 +588,28 @@ function newList(limit) {
       storage[key] = val;
       done(null);
     },
+    setMulti: function(pairs, done) {
+      for (var k = 0, keys = Object.keys(pairs); k < keys.length; k++) {
+        storage[keys[k]] = pairs[keys[k]];
+      }
+    },
     get: function(key, done) {
       done(null, storage[key]);
+    },
+    getMulti: function(keys, done) {
+      var pairs = {};
+      for (var k = 0; k < keys.length; k++) {
+        pairs[keys[k]] = storage[keys[k]];
+      }
     },
     del: function(key, done) {
       delete storage[key];
       done(null);
+    },
+    delMulti: function(keys, done) {
+      for (var k = 0; k < keys.length; k++) {
+        delete storage[keys[k]];
+      }
     }
   });
   list.storage = storage;
@@ -603,7 +619,10 @@ function newListWithBrokenIO(limit) {
   return new LRUList({
     limit: limit,
     set: storeErrCb,
+    setMulti: storeErrCb,
     get: storeErrCb,
-    del: storeErrCb
+    getMulti: storeErrCb,
+    del: storeErrCb,
+    delMulti: storeErrCb
   });
 }
