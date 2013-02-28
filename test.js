@@ -142,14 +142,14 @@ describe('LRUList', function() {
       list.put('e', this.val, endSnapshots);
     });
 
-    it('should let dupe keys push out older', function(done) {
-      var list = newList(5);
+    it('should keep dupe keys for eventual shift', function(done) {
+      var list = newlist(5);
       var snapshots = [];
-      function addSnapshot() {
+      function addsnapshot() {
         snapshots.push(list.keys());
       }
-      function endSnapshots() {
-        addSnapshot();
+      function endsnapshots() {
+        addsnapshot();
         snapshots.should.deep.equal(
           [
             ['a'],
@@ -162,12 +162,12 @@ describe('LRUList', function() {
         );
         done();
       }
-      list.put('a', this.val, addSnapshot);
-      list.put('b', this.val, addSnapshot);
-      list.put('c', this.val, addSnapshot);
-      list.put('a', this.val, addSnapshot);
-      list.put('b', this.val, addSnapshot);
-      list.put('c', this.val, endSnapshots);
+      list.put('a', this.val, addsnapshot);
+      list.put('b', this.val, addsnapshot);
+      list.put('c', this.val, addsnapshot);
+      list.put('a', this.val, addsnapshot);
+      list.put('b', this.val, addsnapshot);
+      list.put('c', this.val, endsnapshots);
     });
 
     it('should not update list on error', function(done) {
@@ -208,23 +208,75 @@ describe('LRUList', function() {
     });
 
     it('should not update key map on error', function(done) {
-      done(); // TODO
+      var list = newListWithBrokenIO();
+      list.putMulti(this.pairs, function putDone() {
+        list.keymap.should.deep.equal({});
+        done();
+      });
     });
 
     it('should update store', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      list.putMulti(this.pairs, function putDone() {
+        list.storage[self.key].should.equal(self.val);
+        list.storage[self.key2].should.equal(self.val2);
+        done();
+      });
     });
 
     it('should limit list', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList(3);
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.keys());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            [self.key, self.key2],
+            [self.key2, self.key, self.key2],
+            [self.key2, self.key, self.key2]
+          ]
+        );
+        done();
+      }
+      list.putMulti(this.pairs, addSnapshot);
+      list.putMulti(this.pairs, addSnapshot);
+      list.putMulti(this.pairs, endSnapshots);
     });
 
-    it('should let dupe keys push out older', function(done) {
-      done(); // TODO
+    it('should keep dupe keys for eventual shift', function(done) {
+      var self = this;
+      var list = newList();
+      var snapshots = [];
+      function addSnapshot() {
+        snapshots.push(list.keys());
+      }
+      function endSnapshots() {
+        addSnapshot();
+        snapshots.should.deep.equal(
+          [
+            [self.key, self.key2],
+            [self.key, self.key2, self.key, self.key2],
+            [self.key, self.key2, self.key, self.key2, self.key, self.key2]
+          ]
+        );
+        done();
+      }
+      list.putMulti(this.pairs, addSnapshot);
+      list.putMulti(this.pairs, addSnapshot);
+      list.putMulti(this.pairs, endSnapshots);
     });
 
     it('should not update list on error', function(done) {
-      done(); // TODO
+      var list = newListWithBrokenIO();
+      list.putMulti(this.pairs, function putDone() {
+        should.not.exist(list.head);
+        done();
+      });
     });
   });
 
