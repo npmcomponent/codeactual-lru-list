@@ -1,14 +1,16 @@
 {
   "name": "lru-list",
   "repo": "codeactual/lru-list",
-  "description": "Storage-agnostic LRU list w/ async value IO",
+  "description": "Storage-agnostic LRU list with async/multi-key operations",
   "version": "1.0.0",
   "keywords": [
     "lru",
     "cache",
     "utility"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "component/batch": "9316255"
+  },
   "development": {},
   "scripts": [
     "index.js"

@@ -10,30 +10,38 @@ Storage-agnostic LRU list w/ async value IO.
 var list = new LRUList({
   limit: 50,
   set: function(key, val, done) {
-    storage[key] = val;
-    done(null);
+    // Write to storage ...
+    done(/* or Error() */);
+  },
+  setMulti: function(pairs, done) {
+    // Write to storage ...
+    done(/* or Error() */);
   },
   get: function(key, done) {
-    done(null, storage[key]);
+    // Read from storage ...
+    done(/* or Error() */, storage[key]);
+  },
+  getMulti: function(keys, done) {
+    // Read from storage ...
+    done(/* or Error() */, pairs);
   },
   del: function(key, done) {
-    delete storage[key];
-    done(null);
+    // Write to storage ...
+    done(/* or Error() */);
+  },
+  delMulti: function(keys, done) {
+    // Write to storage ...
+    done(/* or Error() */);
   }
 });
 
-list.put(key, val, function putDone(err) {
-  // ...
-});
-list.shift(function shiftDone(err) {
-  // ...
-});
-list.get(key, function getDone(err, val) {
-  // ...
-});
-list.remove(key, function removeDone(err) {
-  // ...
-});
+list.put(key, val, function putDone(err) { /* ... */ });
+list.putMulti(pairs, function putDone(err) { /* ... */ });
+list.shift(function shiftDone(err) { /* ... */ });
+list.get(key, function getDone(err, val) { /* ... */ });
+list.getMulti(keys, function getDone(err, val) { /* ... */ });
+list.remove(key, function removeDone(err) { /* ... */ });
+list.removeMulti(keys, function removeDone(err) { /* ... */ });
 list.keys(); // ['key1', 'key2', ...]
 ```
 
@@ -78,11 +86,15 @@ Create a new `LRUList` based on `config` fields:
 * To indicate an error: `done(new Error('reason'));`
 * To indicate an success: `done(null);`
 
-### Async methods
-
-### #put(str, value, fn)
+### #put(key, value, fn)
 
 Append key to the list's tail. Trigger storage of the value.
+
+`fn` receives `(<null|Error>)`.
+
+### #putMulti(pairs, fn)
+
+Append keys to the list's tail in object-key order. Trigger storage of the values.
 
 `fn` receives `(<null|Error>)`.
 
@@ -90,19 +102,31 @@ Append key to the list's tail. Trigger storage of the value.
 
 Remove the key at the list's head (the LRU). Trigger removal of the value.
 
-`fn` receives `(<null|Error>)`.
+`fn` receives `(<undefined|Error>)`.
 
-### #get(str, fn)
+### #get(key, fn)
 
 Promote the key to the tail (MRU). Read the value from storage.
 
-`fn` receives `(<null|Error>, <undefined|value>)`.
+`fn` receives `(<undefined|Error>, <undefined|value>)`.
 
-### #remove(str, fn)
+### #getMulti(keys, fn)
+
+Promote the keys to the tail (MRU) in array order. Read the values from storage.
+
+`fn` receives `(<undefined|Error>, <undefined|pairs>)`.
+
+### #remove(key, fn)
 
 Remove the key from the list and key map. Trigger removal of the value.
 
-`fn` receives `(<null|Error>)`.
+`fn` receives `(<undefined|Error>)`.
+
+### #removeMulti(keys, fn)
+
+Remove the keys from the list and key map, in array order. Trigger removal of the values.
+
+`fn` receives `(<undefined|Error>)`.
 
 ### Array#keys()
 
@@ -123,6 +147,11 @@ npm test
 
 # Change Log
 
+## 1.1.0
+
+* Added: `putMulti`,  `getMulti`, `removeMulti`.
+* Fix: shift() did not wait for storage deletion success before updating list.
+
 ## 1.0.0
 
-* Added initial API and tests for: `put`, `shift`, `get`, `remove`, `keys`.
+* Added: initial API and tests for `put`, `shift`, `get`, `remove`, `keys`.

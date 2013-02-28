@@ -1,5 +1,5 @@
 /**
- * Storage agnostic LRU list w/ async value IO
+ * Storage-agnostic LRU list with async/multi-key operations.
  *
  * Based on https://github.com/rsms/js-lru
  *   Licensed under MIT.
@@ -23,6 +23,8 @@ module.exports = {
   LRUList: LRUList,
   LRUEntry: LRUEntry
 };
+
+var Batch = require('batch');
 
 var emptyFn = function() {};
 
@@ -48,8 +50,11 @@ function LRUList(config) {
   this.limit = config.limit || 100;
   this.store = {
     set: config.set || emptyFn,
+    setMulti: config.setMulti || emptyFn,
     get: config.get || emptyFn,
-    del: config.del || emptyFn
+    getMulti: config.getMulti || emptyFn,
+    del: config.del || emptyFn,
+    delMulti: config.delMulti || emptyFn
   };
   this.keymap = {};
 }
@@ -75,29 +80,71 @@ function LRUEntry(key) {
 LRUList.prototype.put = function(key, val, done) {
   done = done || function putDoneNoOp() {};
   var self = this;
-
   this.store.set(key, val, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
-
-    var entry = new LRUEntry(key); // Create new tail.
-    self.keymap[key] = entry;
-
-    if (self.tail) { // Link old tail to new tail.
-      self.tail.newer = entry;
-      entry.older = self.tail;
-    } else { // First entry.
-      self.head = entry;
-    }
-
-    self.tail = entry; // Assign new tail.
-
-    if (self.size === self.limit) { // List size exceeded. Trim head.
-      self.shift(done);
-    } else {
-      self.size++;
-      done(null);
-    }
+    self._updateStructForPut(key, val, done);
   });
+};
+
+/**
+ * Append keys to the list's tail in object-key order. Trigger storage of the values.
+ *
+ * - Duplicate keys are allowed by original design.
+ *   May produce "orphaned" entries to which the key map no longer points. Then they
+ *   can no longer be read/removed, and can only be pushed out by lack of use.
+ *
+ * @param {object} pairs
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype.putMulti = function(pairs, done) {
+  done = done || function putMultiDoneNoOp() {};
+  var self = this;
+
+  this.store.setMulti(pairs, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+
+    var batch = new Batch();
+
+    Object.keys(pairs).forEach(function batchKey(key) {
+      batch.push(function batchPush(taskDone) {
+        self._updateStructForPut(key, pairs[key], taskDone);
+      });
+    });
+
+    batch.end(function batchEnd(err) {
+      done(err);
+    });
+  });
+};
+
+/**
+ * Apply a put/putMulti operation to the list/map structures.
+ *
+ * @param {string} key
+ * @param {mixed} val
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype._updateStructForPut = function(key, val, done) {
+  var entry = new LRUEntry(key); // Create new tail.
+  this.keymap[key] = entry;
+
+  if (this.tail) { // Link old tail to new tail.
+    this.tail.newer = entry;
+    entry.older = this.tail;
+  } else { // First entry.
+    this.head = entry;
+  }
+
+  this.tail = entry; // Assign new tail.
+
+  if (this.size === this.limit) { // List size exceeded. Trim head.
+    this.shift(done);
+  } else {
+    this.size++;
+    done(null);
+  }
 };
 
 /**
@@ -117,19 +164,19 @@ LRUList.prototype.shift = function(done) {
     return;
   }
 
-  if (this.head.newer) { // 2nd-to-head is now head.
-    this.head = this.head.newer;
-    this.head.older = undefined;
-  } else { // Head was the only entry.
-    this.head = undefined;
-  }
-
-  // Remove last strong reference to <entry> and remove links from the purged
-  // entry being returned.
-  entry.newer = entry.older = undefined;
-
   this.store.del(entry.key, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
+
+    if (self.head.newer) { // 2nd-to-head is now head.
+      self.head = self.head.newer;
+      self.head.older = undefined;
+    } else { // Head was the only entry.
+      self.head = undefined;
+    }
+
+    // Remove last strong reference to <entry> and remove links from the purged
+    // entry being returned.
+    entry.newer = entry.older = undefined;
 
     delete self.keymap[entry.key];
     done(null, entry);
@@ -139,7 +186,7 @@ LRUList.prototype.shift = function(done) {
 /**
  * Promote the key to the tail (MRU). Read the value from storage.
  *
- * @param {string} key
+ * @param {string|array} key
  * @param {function} done
  *   {object} Error instance or null.
  *   {mixed} Value or undefined.
@@ -152,32 +199,63 @@ LRUList.prototype.get = function(key, done) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
 
     var entry = self.keymap[key];
-
     if (entry === undefined) { done(null); return; } // Key miss.
     if (entry === self.tail) { done(null, val); return; } // Key already MRU.
 
-    if (entry.newer) { // Key has more-recently-used than it.
-      if (entry === self.head) {
-        self.head = entry.newer; // 2nd-to-head is now head.
-      }
-      // Connect adjacent entries to fill the future gap it will leave.
-      entry.newer.older = entry.older;
-    }
-    if (entry.older) { // Key has less-recently-used than it.
-      // Connect adjacent entries to fill the future gap it will leave.
-      entry.older.newer = entry.newer;
-    }
-
-    entry.newer = undefined; // Entry will be newest.
-
-    // Move current tail will 2nd-to-tail positiion.
-    entry.older = self.tail;
-    if (self.tail) { self.tail.newer = entry; }
-
-    self.tail = entry;
-
+    self._updateStructForGet(entry);
     done(null, val);
   });
+};
+
+/**
+ * Promote the keys to the tail (MRU) in array order. Read the values from storage.
+ *
+ * @param {array} keys
+ * @param {function} done
+ *   {object} Error instance or null.
+ *   {mixed} Value or undefined.
+ */
+LRUList.prototype.getMulti = function(keys, done) {
+  done = done || function getMultiDoneNoOp() {};
+  var self = this;
+
+  this.store.getMulti(keys, function storeIODone(err, pairs) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    for (var k = 0; k < keys.length; k++) {
+      var entry = self.keymap[keys[k]];
+      if (entry === undefined) { continue; } // Key miss.
+      if (entry === self.tail) { continue; } // Key already MRU.
+      self._updateStructForGet(entry);
+    }
+    done(null, pairs);
+  });
+};
+
+/**
+ * Apply a get/getMulti operation to the list/map structures.
+ *
+ * @param {object} entry LRUEntry instance.
+ */
+LRUList.prototype._updateStructForGet = function(entry) {
+  if (entry.newer) { // Key has more-recently-used than it.
+    if (entry === this.head) {
+      this.head = entry.newer; // 2nd-to-head is now head.
+    }
+    // Connect adjacent entries to fill the future gap it will leave.
+    entry.newer.older = entry.older;
+  }
+  if (entry.older) { // Key has less-recently-used than it.
+    // Connect adjacent entries to fill the future gap it will leave.
+    entry.older.newer = entry.newer;
+  }
+
+  entry.newer = undefined; // Entry will be newest.
+
+  // Move current tail will 2nd-to-tail positiion.
+  entry.older = this.tail;
+  if (this.tail) { this.tail.newer = entry; }
+
+  this.tail = entry;
 };
 
 /**
@@ -193,31 +271,58 @@ LRUList.prototype.remove = function(key, done) {
 
   this.store.del(key, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
-
-    var entry = self.keymap[key];
-    if (!entry) { done(null); return; } // Key miss.
-
-    delete self.keymap[entry.key];
-
-    if (entry.newer && entry.older) {
-      // Connect adjacent entries to fill the future gap it will leave.
-      entry.older.newer = entry.newer;
-      entry.newer.older = entry.older;
-    } else if (entry.newer) { // Removing head.
-      entry.newer.older = undefined;
-      self.head = entry.newer;
-    } else if (entry.older) { // Removing tail.
-      entry.older.newer = undefined;
-      self.tail = entry.older;
-    } else { // Removing sole key in list.
-      self.head = self.tail = undefined;
-    }
-
-    self.size--;
-
+    self._updateStructForRemove(key);
     done(null);
   });
-}
+};
+
+/**
+ * Remove keys from the list and key map. Trigger removal of the values.
+ *
+ * @param {array} keys
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype.removeMulti = function(keys, done) {
+  done = done || function removeDoneNoOp() {};
+  var self = this;
+
+  this.store.delMulti(keys, function storeIODone(err) {
+    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    for (var k = 0; k < keys.length; k++) {
+      self._updateStructForRemove(keys[k]);
+    }
+    done(null);
+  });
+};
+
+/**
+ * Apply a remove/removeMulti operation to the list/map structures.
+ *
+ * @param {string} key
+ */
+LRUList.prototype._updateStructForRemove = function(key) {
+  var entry = this.keymap[key];
+  if (!entry) { return; } // Key miss.
+
+  delete this.keymap[entry.key];
+
+  if (entry.newer && entry.older) {
+    // Connect adjacent entries to fill the future gap it will leave.
+    entry.older.newer = entry.newer;
+    entry.newer.older = entry.older;
+  } else if (entry.newer) { // Removing head.
+    entry.newer.older = undefined;
+    this.head = entry.newer;
+  } else if (entry.older) { // Removing tail.
+    entry.older.newer = undefined;
+    this.tail = entry.older;
+  } else { // Removing sole key in list.
+    this.head = this.tail = undefined;
+  }
+
+  this.size--;
+};
 
 /**
  * Produce a head-to-tail ordered key list.
