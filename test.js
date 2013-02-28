@@ -877,7 +877,19 @@ describe('LRUList', function() {
     });
 
     it('should handle putMulti/getMulti/removeMulti cycle', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      list.putMulti(this.pairs, function putDone() {
+        list.getMulti(self.keys, function getDone(err, val) {
+          val.should.deep.equal(self.pairs);
+          list.removeMulti(self.keys, function delDone(err) {
+            list.getMulti(self.keys, function getDone(err, val) {
+              val.should.deep.equal({});
+              done();
+            });
+          });
+        });
+      });
     });
   });
 });
@@ -911,9 +923,11 @@ function newList(limit) {
     getMulti: function(keys, done) {
       var pairs = {};
       for (var k = 0; k < keys.length; k++) {
-        pairs[keys[k]] = storage[keys[k]];
+        if (storage.hasOwnProperty(keys[k])) {
+          pairs[keys[k]] = storage[keys[k]];
+        }
       }
-      done(null);
+      done(null, pairs);
     },
     del: function(key, done) {
       delete storage[key];
