@@ -19,7 +19,7 @@ var list = new LRUList({
   },
   get: function(key, done) {
     // Read from storage ...
-    done(/* or Error() */, storage[key]);
+    done(/* or Error() */, val);
   },
   getMulti: function(keys, done) {
     // Read from storage ...
@@ -36,12 +36,12 @@ var list = new LRUList({
 });
 
 list.put(key, val, function putDone(err) { /* ... */ });
-list.putMulti(pairs, function putDone(err) { /* ... */ });
+list.putMulti(pairs, function putMultiDone(err) { /* ... */ });
 list.shift(function shiftDone(err) { /* ... */ });
 list.get(key, function getDone(err, val) { /* ... */ });
-list.getMulti(keys, function getDone(err, val) { /* ... */ });
+list.getMulti(keys, function getMultiDone(err, val) { /* ... */ });
 list.remove(key, function removeDone(err) { /* ... */ });
-list.removeMulti(keys, function removeDone(err) { /* ... */ });
+list.removeMulti(keys, function removeMultiDone(err) { /* ... */ });
 list.keys(); // ['key1', 'key2', ...]
 ```
 
