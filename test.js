@@ -859,8 +859,75 @@ describe('LRUList', function() {
     });
   });
 
+  describe('#saveStruct()', function() {
+    it('should propagate IO success', function(done) {
+      var list = newList();
+      function cb(err) {
+        should.equal(err, null);
+        done();
+      }
+      list.saveStruct(this.keys[0], cb);
+    });
+
+    it('should propagate IO error', function(done) {
+      var list = newListWithBrokenIO();
+      function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      }
+      list.saveStruct(this.keys[0], cb);
+    });
+
+    it('should save list/map structure', function(done) {
+      var self = this;
+      var list = newList();
+      var key = 'myStructureKey';
+      list.putMulti(this.pairs, function putDone() {
+        list.saveStruct(key, function saveDone() {
+          list.get(key, function getDone(err, keys) {
+            keys.should.deep.equal(self.keys);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('#restoreStruct()', function() {
+    it('should propagate IO success', function(done) {
+      var list = newList();
+      function cb(err) {
+        should.equal(err, null);
+        done();
+      }
+      list.restoreStruct(this.keys[0], cb);
+    });
+
+    it('should propagate IO error', function(done) {
+      var list = newListWithBrokenIO();
+      function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      }
+      list.restoreStruct(this.keys[0], cb);
+    });
+
+    it('should restore list/map structure', function(done) {
+      var self = this;
+      var list = newList();
+      var key = 'myStructureKey';
+      list.put(key, this.keys, function putDone(err, keys) {
+        list.keys().should.deep.equal([key]);
+        list.restoreStruct(key, function restoreDone() {
+          list.keys().should.deep.equal(self.keys);
+          done();
+        });
+      });
+    });
+  });
+
   describe('integration', function() {
-    it('should handle put/get/remove cycle', function(done) {
+    it('should perform put/get/remove cycle', function(done) {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
@@ -876,7 +943,7 @@ describe('LRUList', function() {
       });
     });
 
-    it('should handle putMulti/getMulti/removeMulti cycle', function(done) {
+    it('should perform putMulti/getMulti/removeMulti cycle', function(done) {
       var self = this;
       var list = newList();
       list.putMulti(this.pairs, function putDone() {

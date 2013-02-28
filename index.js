@@ -26,6 +26,7 @@ module.exports = {
 
 var Batch = require('batch');
 var Configurable = require('configurable.js');
+var is = require('is');
 
 var emptyFn = function() {};
 
@@ -34,7 +35,6 @@ var emptyFn = function() {};
  */
 function LRUList() {
   this.size = 0;
-
   this.tail = undefined;
   this.head = undefined;
   this.keymap = {};
@@ -79,7 +79,7 @@ LRUList.prototype.put = function(key, val, done) {
   var self = this;
   this.settings.set(key, val, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
-    self._updateStructForPut(key, val, done);
+    self._updateStructForPut(key, done);
   });
 };
 
@@ -105,13 +105,11 @@ LRUList.prototype.putMulti = function(pairs, done) {
 
     Object.keys(pairs).forEach(function batchKey(key) {
       batch.push(function batchPush(taskDone) {
-        self._updateStructForPut(key, pairs[key], taskDone);
+        self._updateStructForPut(key, taskDone);
       });
     });
 
-    batch.end(function batchEnd(err) {
-      done(err);
-    });
+    batch.end(done);
   });
 };
 
@@ -119,11 +117,10 @@ LRUList.prototype.putMulti = function(pairs, done) {
  * Apply a put/putMulti operation to the list/map structures.
  *
  * @param {string} key
- * @param {mixed} val
  * @param {function} done
  *   {object} Error instance or null.
  */
-LRUList.prototype._updateStructForPut = function(key, val, done) {
+LRUList.prototype._updateStructForPut = function(key, done) {
   var entry = new LRUEntry(key); // Create new tail.
   this.keymap[key] = entry;
 
@@ -210,7 +207,7 @@ LRUList.prototype.get = function(key, done) {
  * @param {array} keys
  * @param {function} done
  *   {object} Error instance or null.
- *   {mixed} Value or undefined.
+ *   {mixed} Key/value pairs or undefined.
  */
 LRUList.prototype.getMulti = function(keys, done) {
   done = done || function getMultiDoneNoOp() {};
@@ -322,6 +319,14 @@ LRUList.prototype._updateStructForRemove = function(key) {
 };
 
 /**
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype.removeAll = function(done) {
+  this.removeMulti(this.keys(), done);
+};
+
+/**
  * Produce a head-to-tail ordered key list.
  *
  * @return {array}
@@ -343,5 +348,48 @@ LRUList.prototype.keys = function() {
  * @return {boolean}
  */
 LRUList.prototype.has = function(key) {
-  return typeof this.keymap[key] !== 'undefined';
+  return this.keymap.hasOwnProperty(key);
+};
+
+/**
+ * Save the key list to the storage backend.
+ *
+ * @param {string} key
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype.saveStruct = function(key, done) {
+  this.put(key, this.keys(), function(err) {
+    done(err);
+  });
+};
+
+/**
+ * Restore the list from the storage backend.
+ *
+ * Reuses on removeAll() and _updateStructForPut() to regenerate the list/map.
+ *
+ * @param {string} key
+ * @param {function} done
+ *   {object} Error instance or null.
+ */
+LRUList.prototype.restoreStruct = function(key, done) {
+  var self = this;
+  this.settings.get(key, function getDone(err, keys) {
+    if (err) { done(err); return; }
+    self.removeAll(function removeDone(err) {
+      if (err) { done(err); return; }
+      if (typeof keys !== 'undefined' && is.array(keys)) {
+        var batch = new Batch();
+        keys.forEach(function batchKey(key) {
+          batch.push(function batchPush(taskDone) {
+            self._updateStructForPut(key, taskDone);
+          });
+        });
+        batch.end(done);
+      } else {
+        done(null); // Nothing to restore.
+      }
+    });
+  });
 };

@@ -37,6 +37,6 @@
     "mocha": "1.8.1"
   },
   "scripts": {
-    "test": "make dist && mocha --async-only --reporter spec test.js"
+    "test": "make build && mocha --async-only --reporter spec test.js"
   }
 }

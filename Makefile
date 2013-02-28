@@ -2,7 +2,7 @@ dist: components index.js
 	@component build --standalone codeactual-lru-list --name codeactual-lru-list
 
 build: components index.js
-	@component build --dev
+	@component build --standalone codeactual-lru-list --name codeactual-lru-list --dev
 
 components: component.json
 	@component install --dev

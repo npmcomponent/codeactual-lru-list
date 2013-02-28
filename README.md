@@ -152,6 +152,12 @@ Remove the keys from the list and key map, in array order. Trigger removal of th
 
 `fn` receives `(<undefined|Error>)`.
 
+### #removeAll(fn)
+
+Clear the list and key map. Trigger removal of all values.
+
+`fn` receives `(<undefined|Error>)`.
+
 ### Array#keys()
 
 Produce a head-to-tail ordered key list.
@@ -159,6 +165,18 @@ Produce a head-to-tail ordered key list.
 ### Boolean#has(key)
 
 Check if a key exists.
+
+### #saveStruct(key, done)
+
+Serialize the LRU list into the storage backend.
+
+`fn` receives `(<undefined|Error>)`.
+
+### #restoreStruct(key, done)
+
+Unserialize the LRU list from the storage backend.
+
+`fn` receives `(<undefined|Error>)`.
 
 ## License
 
@@ -179,7 +197,8 @@ npm test
 
 * Replaced: LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
 * Replaced: Default 100 entry limit with no limit.
-* Added: `putMulti`,  `getMulti`, `removeMulti`, `has`.
+* Added: `putMulti`,  `getMulti`, `removeMulti`, `has`, `removeAll`.
+* Added: Serialization of list to the storage backend and keymap regeneration via `saveStruct` and `restoreStruct`.
 * Fix: shift() did not wait for storage deletion success before updating list.
 
 ## 1.0.0
