@@ -109,9 +109,7 @@ LRUList.prototype.putMulti = function(pairs, done) {
       });
     });
 
-    batch.end(function batchEnd(err) {
-      done(err);
-    });
+    batch.end(done);
   });
 };
 
@@ -375,16 +373,19 @@ LRUList.prototype.saveStruct = function(key, done) {
  */
 LRUList.prototype.restoreStruct = function(key, done) {
   var self = this;
-  this.removeAll(function removeDone(err) {
+  this.settings.get(key, function getDone(err, keys) {
     if (err) { done(err); return; }
-    self.settings.get(key, function getDone(err, keys) {
+    self.removeAll(function removeDone(err) {
       if (err) { done(err); return; }
       if (typeof keys !== 'undefined' && is.array(keys)) {
-        for (var k = 0; k < keys.length; k++) {
-          self._updateStructForPut(keys[k]);
-        }
+        var batch = new Batch();
+        keys.forEach(function batchKey(key) {
+          batch.push(function batchPush(taskDone) {
+            self._updateStructForPut(key, taskDone);
+          });
+        });
+        batch.end(done);
       }
-      done(null);
     });
   });
 };

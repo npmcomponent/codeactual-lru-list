@@ -893,7 +893,16 @@ describe('LRUList', function() {
     });
 
     it('should restore list/map structure', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      var key = 'myStructureKey';
+      list.put(key, this.keys, function putDone(err, keys) {
+        list.keys().should.deep.equal([key]);
+        list.restoreStruct(key, function restoreDone() {
+          list.keys().should.deep.equal(self.keys);
+          done();
+        });
+      });
     });
   });
 
