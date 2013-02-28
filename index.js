@@ -352,7 +352,7 @@ LRUList.prototype.has = function(key) {
 };
 
 /**
- * Save the list to the storage backend.
+ * Save the key list to the storage backend.
  *
  * @param {string} key
  * @param {function} done
@@ -366,6 +366,8 @@ LRUList.prototype.saveStruct = function(key, done) {
 
 /**
  * Restore the list from the storage backend.
+ *
+ * Reuses on removeAll() and _updateStructForPut() to regenerate the list/map.
  *
  * @param {string} key
  * @param {function} done
