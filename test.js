@@ -67,20 +67,18 @@ describe('LRUList', function() {
   describe('#put()', function() {
     it('should propagate IO success', function(done) {
       var list = newList();
-      function cb(err) {
+      list.put(this.keys[0], this.vals[0], function (err) {
         should.equal(err, null);
         done();
-      }
-      list.put(this.keys[0], this.vals[0], cb);
+      });
     });
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      function cb(err) {
+      list.put(this.keys[0], this.vals[0], function (err) {
         should.equal(err, storeErr);
         done();
-      }
-      list.put(this.keys[0], this.vals[0], cb);
+      });
     });
 
     it('should update key map', function(done) {
@@ -175,20 +173,18 @@ describe('LRUList', function() {
   describe('#putMulti()', function() {
     it('should propagate IO success', function(done) {
       var list = newList();
-      function cb(err) {
+      list.putMulti(this.pairs, function (err) {
         should.equal(err, null);
         done();
-      }
-      list.putMulti(this.pairs, cb);
+      });
     });
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      function cb(err) {
+      list.putMulti(this.pairs, function (err) {
         should.equal(err, storeErr);
         done();
-      }
-      list.putMulti(this.pairs, cb);
+      });
     });
 
     it('should update key map', function(done) {
@@ -276,21 +272,21 @@ describe('LRUList', function() {
 
   describe('#shift()', function() {
     it('should handle empty list', function(done) {
-      newList().shift(function cb(err) {
+      newList().shift(function(err) {
         should.equal(err, null);
         done();
       });
     });
 
     it('should propagate IO success', function(done) {
-      newList().shift(function cb(err) {
+      newList().shift(function(err) {
         should.equal(err, null);
         done();
       });
     });
 
     it('should propagate IO error', function(done) {
-      newListWithBrokenIO().put(this.keys[0], this.vals[0], function cb(err) {
+      newListWithBrokenIO().put(this.keys[0], this.vals[0], function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -584,14 +580,14 @@ describe('LRUList', function() {
 
   describe('#remove()', function() {
     it('should propagate IO success', function(done) {
-      newList().remove(this.keys[0], function cb(err) {
+      newList().remove(this.keys[0], function(err) {
         should.equal(err, null);
         done();
       });
     });
 
     it('should propagate IO error', function(done) {
-      newListWithBrokenIO().remove(this.keys[0], function cb(err) {
+      newListWithBrokenIO().remove(this.keys[0], function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -719,14 +715,14 @@ describe('LRUList', function() {
 
   describe('#removeMulti()', function() {
     it('should propagate IO success', function(done) {
-      newList().removeMulti(this.keys, function cb(err) {
+      newList().removeMulti(this.keys, function(err) {
         should.equal(err, null);
         done();
       });
     });
 
     it('should propagate IO error', function(done) {
-      newListWithBrokenIO().remove(this.keys, function cb(err) {
+      newListWithBrokenIO().remove(this.keys, function(err) {
         should.equal(err, storeErr);
         done();
       });
@@ -859,23 +855,42 @@ describe('LRUList', function() {
     });
   });
 
-  describe('#saveStruct()', function() {
-    it('should propagate IO success', function(done) {
+  describe('#removeAll()', function() {
+    it('should remove all keys', function(done) {
+      var self = this;
       var list = newList();
-      function cb(err) {
-        should.equal(err, null);
-        done();
-      }
-      list.saveStruct(this.keys[0], cb);
+      list.putMulti(this.pairs, function putDone() {
+        list.removeAll(function removeDone() {
+          list.storage.should.deep.equal({});
+          done();
+        });
+      });
     });
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      function cb(err) {
+      list.removeAll(function(err) {
         should.equal(err, storeErr);
         done();
-      }
-      list.saveStruct(this.keys[0], cb);
+      });
+    });
+  });
+
+  describe('#saveStruct()', function() {
+    it('should propagate IO success', function(done) {
+      var list = newList();
+      list.saveStruct(this.keys[0], function(err) {
+        should.equal(err, null);
+        done();
+      });
+    });
+
+    it('should propagate IO error', function(done) {
+      var list = newListWithBrokenIO();
+      list.saveStruct(this.keys[0], function(err) {
+        should.equal(err, storeErr);
+        done();
+      });
     });
 
     it('should save list/map structure', function(done) {
@@ -896,20 +911,18 @@ describe('LRUList', function() {
   describe('#restoreStruct()', function() {
     it('should propagate IO success', function(done) {
       var list = newList();
-      function cb(err) {
+      list.restoreStruct(this.keys[0], function(err) {
         should.equal(err, null);
         done();
-      }
-      list.restoreStruct(this.keys[0], cb);
+      });
     });
 
     it('should propagate IO error', function(done) {
       var list = newListWithBrokenIO();
-      function cb(err) {
+      list.restoreStruct(this.keys[0], function (err) {
         should.equal(err, storeErr);
         done();
-      }
-      list.restoreStruct(this.keys[0], cb);
+      });
     });
 
     it('should restore list/map structure', function(done) {
