@@ -859,8 +859,46 @@ describe('LRUList', function() {
     });
   });
 
+  describe('#saveStruct()', function() {
+    it('should propagate IO success', function(done) {
+      done(); // TODO
+    });
+
+    it('should propagate IO error', function(done) {
+      done(); // TODO
+    });
+
+    it('should save list/map structure', function(done) {
+      var self = this;
+      var list = newList();
+      var key = 'myStructureKey';
+      list.putMulti(this.pairs, function putDone() {
+        list.saveStruct(key, function saveDone() {
+          list.get(key, function getDone(err, keys) {
+            keys.should.deep.equal(self.keys);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('#restoreStruct()', function() {
+    it('should propagate IO success', function(done) {
+      done(); // TODO
+    });
+
+    it('should propagate IO error', function(done) {
+      done(); // TODO
+    });
+
+    it('should restore list/map structure', function(done) {
+      done(); // TODO
+    });
+  });
+
   describe('integration', function() {
-    it('should handle put/get/remove cycle', function(done) {
+    it('should perform put/get/remove cycle', function(done) {
       var self = this;
       var list = newList();
       list.put(this.keys[0], this.vals[0], function putDone() {
@@ -876,7 +914,7 @@ describe('LRUList', function() {
       });
     });
 
-    it('should handle putMulti/getMulti/removeMulti cycle', function(done) {
+    it('should perform putMulti/getMulti/removeMulti cycle', function(done) {
       var self = this;
       var list = newList();
       list.putMulti(this.pairs, function putDone() {
@@ -890,6 +928,10 @@ describe('LRUList', function() {
           });
         });
       });
+    });
+
+    it('should save and restore structure', function(done) {
+      done(); // TODO
     });
   });
 });
