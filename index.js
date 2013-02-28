@@ -40,7 +40,7 @@ function LRUList() {
   this.keymap = {};
 
   this.settings = {
-    limit: 100,
+    limit: -1,
     set: emptyFn,
     setMulti: emptyFn,
     get: emptyFn,

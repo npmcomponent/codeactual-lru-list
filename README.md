@@ -78,7 +78,7 @@ Settings updatable via [configurable.js](https://github.com/visionmedia/configur
 
 `{number} limit` Maximum list entries.
 
-* default: 100
+* default: -1
 
 `{function} set(key, val, done)` The callback responsible for writing a value at a given key.
 
@@ -174,6 +174,7 @@ npm test
 ## 1.1.0
 
 * Replaced: LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
+* Replaced: Default 100 entry limit with no limit.
 * Added: `putMulti`,  `getMulti`, `removeMulti`.
 * Fix: shift() did not wait for storage deletion success before updating list.
 

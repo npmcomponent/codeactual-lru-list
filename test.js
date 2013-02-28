@@ -43,7 +43,7 @@ describe('LRUList', function() {
     it('should init state', function(done) {
       var list = new LRUList();
       list.size.should.equal(0);
-      list.settings.limit.should.equal(100);
+      list.settings.limit.should.equal(-1);
       list.settings.set.should.be.instanceOf(Function);
       list.settings.get.should.be.instanceOf(Function);
       list.settings.del.should.be.instanceOf(Function);
