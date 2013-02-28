@@ -72,7 +72,7 @@ Build standalone file in `build/`:
 
 ### LRUList()
 
-Create a new `LRUList`.
+> Create a new `LRUList`.
 
 [Configurable](https://github.com/visionmedia/configurable.js) via `#setOption()`:
 
@@ -112,69 +112,69 @@ Create a new `LRUList`.
 
 ### #set(key, value, fn)
 
-Append key to the list's tail. Trigger storage of the value.
+> Append key to the list's tail. Trigger storage of the value.
 
 `fn` receives `(<null|Error>)`.
 
 ### #setMulti(pairs, fn)
 
-Append keys to the list's tail in object-key order. Trigger storage of the values.
+> Append keys to the list's tail in object-key order. Trigger storage of the values.
 
 `fn` receives `(<null|Error>)`.
 
 ### #shift(fn)
 
-Remove the key at the list's head (the LRU). Trigger removal of the value.
+> Remove the key at the list's head (the LRU). Trigger removal of the value.
 
 `fn` receives `(<undefined|Error>)`.
 
 ### #get(key, fn)
 
-Promote the key to the tail (MRU). Read the value from storage.
+> Promote the key to the tail (MRU). Read the value from storage.
 
 `fn` receives `(<undefined|Error>, <undefined|value>)`.
 
 ### #getMulti(keys, fn)
 
-Promote the keys to the tail (MRU) in array order. Read the values from storage.
+> Promote the keys to the tail (MRU) in array order. Read the values from storage.
 
 `fn` receives `(<undefined|Error>, <undefined|pairs>)`.
 
 ### #del(key, fn)
 
-Remove the key from the list and key map. Trigger removal of the value.
+> Remove the key from the list and key map. Trigger removal of the value.
 
 `fn` receives `(<undefined|Error>)`.
 
 ### #delMulti(keys, fn)
 
-Remove the keys from the list and key map, in array order. Trigger removal of the values.
+> Remove the keys from the list and key map, in array order. Trigger removal of the values.
 
 `fn` receives `(<undefined|Error>)`.
 
 ### #delAll(fn)
 
-Clear the list and key map. Trigger removal of all values.
+> Clear the list and key map. Trigger removal of all values.
 
 `fn` receives `(<undefined|Error>)`.
 
 ### Array#keys()
 
-Produce a head-to-tail ordered key list.
+> Produce a head-to-tail ordered key list.
 
 ### Boolean#has(key)
 
-Check if a key exists.
+> Check if a key exists.
 
 ### #saveStruct(key, done)
 
-Serialize the LRU list into the storage backend.
+> Serialize the LRU list into the storage backend.
 
 `fn` receives `(<undefined|Error>)`.
 
 ### #restoreStruct(key, done)
 
-Unserialize the LRU list from the storage backend.
+> Unserialize the LRU list from the storage backend.
 
 `fn` receives `(<undefined|Error>)`.
 
