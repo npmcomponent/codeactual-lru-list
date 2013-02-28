@@ -603,6 +603,44 @@ describe('LRUList', function() {
     });
   });
 
+  describe('#removeMulti()', function() {
+    it('should propagate IO success', function(done) {
+      done(); // TODO
+    });
+
+    it('should propagate IO error', function(done) {
+      done(); // TODO
+    });
+
+    it('should update key map', function(done) {
+      done(); // TODO
+    });
+
+    it('should not update key map on error', function(done) {
+      done(); // TODO
+    });
+
+    it('should update store', function(done) {
+      done(); // TODO
+    });
+
+    it('should remove newest of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should remove middle of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should remove oldest of list', function(done) {
+      done(); // TODO
+    });
+
+    it('should not update list on error', function(done) {
+      done(); // TODO
+    });
+  });
+
   describe('integration', function() {
     it('should handle put/get/remove cycle', function(done) {
       var self = this;
@@ -618,6 +656,10 @@ describe('LRUList', function() {
           });
         });
       });
+    });
+
+    it('should handle putMulti/getMulti/removeMulti cycle', function(done) {
+      done(); // TODO
     });
   });
 });
