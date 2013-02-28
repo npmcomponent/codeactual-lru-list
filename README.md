@@ -9,16 +9,16 @@ Storage-agnostic LRU list w/ async value IO.
 ```js
 var list = new LRUList();
 
-list.set('limit', 50)
-    .set('set', function(key, val, done) {
+list.setOption('limit', 50)
+    .setOption('set', function(key, val, done) {
       // Write to storage ...
       done(/* or Error() */);
     })
-    .set('get', function(key, done) {
+    .setOption('get', function(key, done) {
       // Read from storage ...
       done(/* or Error() */, val);
     })
-    .set('del', function(key, done) {
+    .setOption('del', function(key, done) {
       // Write to storage ...
       done(/* or Error() */);
     });
@@ -34,15 +34,15 @@ list.keys(); // ['key1', 'key2', ...]
 
 ```js
 // Add optional multi-key handling.
-list.set('setMulti', function(pairs, done) {
+list.setOption('setMulti', function(pairs, done) {
       // Write to storage ...
       done(/* or Error() */);
     })
-    .set('getMulti', function(keys, done) {
+    .setOption('getMulti', function(keys, done) {
       // Read from storage ...
       done(/* or Error() */, pairs);
     })
-    .set('delMulti', function(keys, done) {
+    .setOption('delMulti', function(keys, done) {
       // Write to storage ...
       done(/* or Error() */);
     });
@@ -74,7 +74,7 @@ Build standalone file in `build/`:
 
 Create a new `LRUList`.
 
-Settings updatable via [configurable.js](https://github.com/visionmedia/configurable.js) `#set()` API:
+[Configurable](https://github.com/visionmedia/configurable.js) via `#setOption()`:
 
 `{number} limit` Maximum list entries.
 

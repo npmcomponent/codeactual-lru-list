@@ -891,21 +891,21 @@ function newList(limit) {
   var storage = {};
   var list = new LRUList();
 
-  list.set('limit', limit)
-      .set('set', function(key, val, done) {
+  list.setOption('limit', limit)
+      .setOption('set', function(key, val, done) {
         storage[key] = val;
         done(null);
       })
-      .set('setMulti', function(pairs, done) {
+      .setOption('setMulti', function(pairs, done) {
         for (var k = 0, keys = Object.keys(pairs); k < keys.length; k++) {
           storage[keys[k]] = pairs[keys[k]];
         }
         done(null);
       })
-      .set('get', function(key, done) {
+      .setOption('get', function(key, done) {
         done(null, storage[key]);
       })
-      .set('getMulti', function(keys, done) {
+      .setOption('getMulti', function(keys, done) {
         var pairs = {};
         for (var k = 0; k < keys.length; k++) {
           if (storage.hasOwnProperty(keys[k])) {
@@ -914,11 +914,11 @@ function newList(limit) {
         }
         done(null, pairs);
       })
-      .set('del', function(key, done) {
+      .setOption('del', function(key, done) {
         delete storage[key];
         done(null);
       })
-      .set('delMulti', function(keys, done) {
+      .setOption('delMulti', function(keys, done) {
         for (var k = 0; k < keys.length; k++) {
           delete storage[keys[k]];
         }
@@ -931,11 +931,11 @@ function newList(limit) {
 }
 function newListWithBrokenIO(limit) {
   var list = new LRUList();
-  list.set('set', setErrCb)
-      .set('setMulti', setMultiErrCb)
-      .set('get', getErrCb)
-      .set('getMulti', getMultiErrCb)
-      .set('del', delErrCb)
-      .set('delMulti', delMultiErrCb);
+  list.setOption('set', setErrCb)
+      .setOption('setMulti', setMultiErrCb)
+      .setOption('get', getErrCb)
+      .setOption('getMulti', getMultiErrCb)
+      .setOption('del', delErrCb)
+      .setOption('delMulti', delMultiErrCb);
   return list;
 }

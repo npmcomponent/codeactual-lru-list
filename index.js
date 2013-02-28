@@ -52,6 +52,10 @@ function LRUList() {
 
 Configurable(LRUList.prototype);
 
+// Work around naming conflict.
+LRUList.prototype.setOption = LRUList.prototype.set;
+LRUList.prototype.getOption = LRUList.prototype.get;
+
 function LRUEntry(key) {
   this.key = key;
   this.older = undefined;
