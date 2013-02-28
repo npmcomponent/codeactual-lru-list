@@ -4,45 +4,52 @@ Storage-agnostic LRU list w/ async value IO.
 
 [![Build Status](https://travis-ci.org/codeactual/lru-list.png)](https://travis-ci.org/codeactual/lru-list)
 
-## Example
+## Single-Key Example
 
 ```js
-var list = new LRUList({
-  limit: 50,
-  set: function(key, val, done) {
-    // Write to storage ...
-    done(/* or Error() */);
-  },
-  setMulti: function(pairs, done) {
-    // Write to storage ...
-    done(/* or Error() */);
-  },
-  get: function(key, done) {
-    // Read from storage ...
-    done(/* or Error() */, val);
-  },
-  getMulti: function(keys, done) {
-    // Read from storage ...
-    done(/* or Error() */, pairs);
-  },
-  del: function(key, done) {
-    // Write to storage ...
-    done(/* or Error() */);
-  },
-  delMulti: function(keys, done) {
-    // Write to storage ...
-    done(/* or Error() */);
-  }
-});
+var list = new LRUList();
+
+list.set('limit', 50)
+    .set('set', function(key, val, done) {
+      // Write to storage ...
+      done(/* or Error() */);
+    })
+    .set('get', function(key, done) {
+      // Read from storage ...
+      done(/* or Error() */, val);
+    })
+    .set('del', function(key, done) {
+      // Write to storage ...
+      done(/* or Error() */);
+    });
 
 list.put(key, val, function putDone(err) { /* ... */ });
-list.putMulti(pairs, function putMultiDone(err) { /* ... */ });
 list.shift(function shiftDone(err) { /* ... */ });
 list.get(key, function getDone(err, val) { /* ... */ });
-list.getMulti(keys, function getMultiDone(err, val) { /* ... */ });
 list.remove(key, function removeDone(err) { /* ... */ });
-list.removeMulti(keys, function removeMultiDone(err) { /* ... */ });
 list.keys(); // ['key1', 'key2', ...]
+```
+
+## Multi-Key Example
+
+```js
+// Add optional multi-key handling.
+list.set('setMulti', function(pairs, done) {
+      // Write to storage ...
+      done(/* or Error() */);
+    })
+    .set('getMulti', function(keys, done) {
+      // Read from storage ...
+      done(/* or Error() */, pairs);
+    })
+    .set('delMulti', function(keys, done) {
+      // Write to storage ...
+      done(/* or Error() */);
+    });
+
+list.putMulti(pairs, function putMultiDone(err) { /* ... */ });
+list.getMulti(keys, function getMultiDone(err, pairs) { /* ... */ });
+list.removeMulti(keys, function removeMultiDone(err) { /* ... */ });
 ```
 
 ## Installation
@@ -149,6 +156,7 @@ npm test
 
 ## 1.1.0
 
+* Replaced: LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
 * Added: `putMulti`,  `getMulti`, `removeMulti`.
 * Fix: shift() did not wait for storage deletion success before updating list.
 
