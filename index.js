@@ -227,6 +227,29 @@ LRUList.prototype.get = function(key, done) {
   });
 };
 
+LRUList.prototype._updateStructForRemove = function(key) {
+  var entry = this.keymap[key];
+  if (!entry) { return; } // Key miss.
+
+  delete this.keymap[entry.key];
+
+  if (entry.newer && entry.older) {
+    // Connect adjacent entries to fill the future gap it will leave.
+    entry.older.newer = entry.newer;
+    entry.newer.older = entry.older;
+  } else if (entry.newer) { // Removing head.
+    entry.newer.older = undefined;
+    this.head = entry.newer;
+  } else if (entry.older) { // Removing tail.
+    entry.older.newer = undefined;
+    this.tail = entry.older;
+  } else { // Removing sole key in list.
+    this.head = this.tail = undefined;
+  }
+
+  this.size--;
+};
+
 /**
  * Remove the key from the list and key map. Trigger removal of the value.
  *
@@ -240,28 +263,7 @@ LRUList.prototype.remove = function(key, done) {
 
   this.store.del(key, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
-
-    var entry = self.keymap[key];
-    if (!entry) { done(null); return; } // Key miss.
-
-    delete self.keymap[entry.key];
-
-    if (entry.newer && entry.older) {
-      // Connect adjacent entries to fill the future gap it will leave.
-      entry.older.newer = entry.newer;
-      entry.newer.older = entry.older;
-    } else if (entry.newer) { // Removing head.
-      entry.newer.older = undefined;
-      self.head = entry.newer;
-    } else if (entry.older) { // Removing tail.
-      entry.older.newer = undefined;
-      self.tail = entry.older;
-    } else { // Removing sole key in list.
-      self.head = self.tail = undefined;
-    }
-
-    self.size--;
-
+    self._updateStructForRemove(key);
     done(null);
   });
 }
