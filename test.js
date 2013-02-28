@@ -11,7 +11,9 @@ var storeErr = new Error('store err');
 describe('LRUList', function() {
   before(function(done) {
     this.key = 'foo';
+    this.key2 = 'bob';
     this.val = 'bar';
+    this.val2 = 'alice';
     this.oneKeyListEntry = {};
     this.oneKeyListEntry[this.key] = {
       key: this.key,
@@ -405,6 +407,33 @@ describe('LRUList', function() {
       list.put('b', this.val, addSnapshot);
       list.put('c', this.val, addSnapshot);
       list.get('a', endSnapshots);
+    });
+
+    it('should update list', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.put(self.key2, self.val2, function put2Done() {
+          list.get(self.key, function getDone() {
+            list.tail.key.should.equal(self.key);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should not update list on error', function(done) {
+      var self = this;
+      var list = newList();
+      list.put(this.key, this.val, function putDone() {
+        list.put(self.key2, self.val2, function put2Done() {
+          list.store.get = storeErrCb;
+          list.get(self.key, function getDone() {
+            list.tail.key.should.equal(self.key2);
+            done();
+          });
+        });
+      });
     });
   });
 
