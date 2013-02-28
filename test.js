@@ -12,14 +12,21 @@ describe('LRUList', function() {
   before(function(done) {
     this.key = 'foo';
     this.key2 = 'bob';
+    this.keys = [this.key, this.key2];
     this.val = 'bar';
     this.val2 = 'alice';
-    this.oneKeyListEntry = {};
-    this.oneKeyListEntry[this.key] = {
-      key: this.key,
-      older: undefined,
-      newer: undefined
-    };
+    this.pairs = {};
+    this.pairs[this.key] = this.val;
+    this.pairs[this.key2] = this.val2;
+    this.oneKeyMap = {};
+    this.oneKeyMap[this.key] = new LRUEntry(this.key);
+    this.entry = new LRUEntry(this.key);
+    this.entry2 = new LRUEntry(this.key2);
+    this.multiKeyMap = {};
+    this.multiKeyMap[this.key] = this.entry;
+    this.multiKeyMap[this.key].newer = this.entry2;
+    this.multiKeyMap[this.key2] = this.entry2;
+    this.multiKeyMap[this.key2].older = this.entry;
     done();
   });
 
@@ -87,7 +94,7 @@ describe('LRUList', function() {
       var self = this;
       var list = newList();
       list.put(this.key, this.val, function putDone() {
-        list.keymap.should.deep.equal(self.oneKeyListEntry);
+        list.keymap.should.deep.equal(self.oneKeyMap);
         done();
       });
     });
@@ -174,15 +181,30 @@ describe('LRUList', function() {
 
   describe('#putMulti()', function() {
     it('should propagate IO success', function(done) {
-      done(); // TODO
+      var list = newList();
+      function cb(err) {
+        should.equal(err, null);
+        done();
+      }
+      list.putMulti(this.pairs, cb);
     });
 
     it('should propagate IO error', function(done) {
-      done(); // TODO
+      var list = newListWithBrokenIO();
+      function cb(err) {
+        should.equal(err, storeErr);
+        done();
+      }
+      list.putMulti(this.pairs, cb);
     });
 
     it('should update key map', function(done) {
-      done(); // TODO
+      var self = this;
+      var list = newList();
+      list.putMulti(this.pairs, function putDone() {
+        list.keymap.should.deep.equal(self.multiKeyMap);
+        done();
+      });
     });
 
     it('should not update key map on error', function(done) {
@@ -244,7 +266,7 @@ describe('LRUList', function() {
       list.put(this.key, this.val, function putDone() {
         list.store.del = storeErrCb;
         list.shift(function shiftDone() {
-          list.keymap.should.deep.equal(self.oneKeyListEntry);
+          list.keymap.should.deep.equal(self.oneKeyMap);
           done();
         });
       });
@@ -500,7 +522,7 @@ describe('LRUList', function() {
       list.put(this.key, this.val, function putDone() {
         list.store.del = storeErrCb;
         list.remove(function shiftDone() {
-          list.keymap.should.deep.equal(self.oneKeyListEntry);
+          list.keymap.should.deep.equal(self.oneKeyMap);
           done();
         });
       });
@@ -698,6 +720,7 @@ function newList(limit) {
       for (var k = 0, keys = Object.keys(pairs); k < keys.length; k++) {
         storage[keys[k]] = pairs[keys[k]];
       }
+      done(null);
     },
     get: function(key, done) {
       done(null, storage[key]);
@@ -707,6 +730,7 @@ function newList(limit) {
       for (var k = 0; k < keys.length; k++) {
         pairs[keys[k]] = storage[keys[k]];
       }
+      done(null);
     },
     del: function(key, done) {
       delete storage[key];
@@ -716,6 +740,7 @@ function newList(limit) {
       for (var k = 0; k < keys.length; k++) {
         delete storage[keys[k]];
       }
+      done(null);
     }
   });
   list.storage = storage;

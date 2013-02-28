@@ -50,8 +50,11 @@ function LRUList(config) {
   this.limit = config.limit || 100;
   this.store = {
     set: config.set || emptyFn,
+    setMulti: config.setMulti || emptyFn,
     get: config.get || emptyFn,
-    del: config.del || emptyFn
+    getMulti: config.getMulti || emptyFn,
+    del: config.del || emptyFn,
+    delMulti: config.delMulti || emptyFn
   };
   this.keymap = {};
 }
