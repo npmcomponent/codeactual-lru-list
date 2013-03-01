@@ -10,17 +10,17 @@ Storage-agnostic LRU list with async/multi-key operations.
 var list = new LRUList();
 
 list.setOption('limit', 50)
-    .setOption('set', function(key, val, done) {
+    .setOption('set', function(key, val, cb) {
       // Write to storage ...
-      done(/* or Error() */);
+      cb(/* or Error() */);
     })
-    .setOption('get', function(key, done) {
+    .setOption('get', function(key, cb) {
       // Read from storage ...
-      done(/* or Error() */, val);
+      cb(/* or Error() */, val);
     })
-    .setOption('del', function(key, done) {
+    .setOption('del', function(key, cb) {
       // Write to storage ...
-      done(/* or Error() */);
+      cb(/* or Error() */);
     });
 
 list.set(key, val, function setDone(err) { /* ... */ });
@@ -34,17 +34,17 @@ list.keys(); // ['key1', 'key2', ...]
 
 ```js
 // Add optional multi-key handling.
-list.setOption('setMulti', function(pairs, done) {
+list.setOption('setMulti', function(pairs, cb) {
       // Write to storage ...
-      done(/* or Error() */);
+      cb(/* or Error() */);
     })
-    .setOption('getMulti', function(keys, done) {
+    .setOption('getMulti', function(keys, cb) {
       // Read from storage ...
-      done(/* or Error() */, pairs);
+      cb(/* or Error() */, pairs);
     })
-    .setOption('delMulti', function(keys, done) {
+    .setOption('delMulti', function(keys, cb) {
       // Write to storage ...
-      done(/* or Error() */);
+      cb(/* or Error() */);
     });
 
 list.setMulti(pairs, function setMultiDone(err) { /* ... */ });
@@ -166,13 +166,13 @@ Build standalone file in `build/`:
 
 > Check if a key exists.
 
-### #saveStruct(key, done)
+### #saveStruct(key, cb)
 
 > Serialize the LRU list into the storage backend.
 
 `cb` receives `(<null|Error>)`.
 
-### #restoreStruct(key, done)
+### #restoreStruct(key, cb)
 
 > Unserialize the LRU list from the storage backend.
 

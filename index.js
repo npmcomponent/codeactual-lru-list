@@ -71,15 +71,15 @@ function LRUEntry(key) {
  *
  * @param {string} key
  * @param {mixed} val
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.set = function(key, val, done) {
-  done = done || lruListNoOp;
+LRUList.prototype.set = function(key, val, cb) {
+  cb = cb || lruListNoOp;
   var self = this;
   this.settings.set(key, val, function storeIODone(err) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
-    self._updateStructForPut(key, done);
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
+    self._updateStructForPut(key, cb);
   });
 };
 
@@ -91,15 +91,15 @@ LRUList.prototype.set = function(key, val, done) {
  *   can no longer be read/deld, and can only be pushed out by lack of use.
  *
  * @param {object} pairs
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.setMulti = function(pairs, done) {
-  done = done || lruListNoOp;
+LRUList.prototype.setMulti = function(pairs, cb) {
+  cb = cb || lruListNoOp;
   var self = this;
 
   this.settings.setMulti(pairs, function storeIODone(err) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     var batch = new Batch();
 
@@ -109,7 +109,7 @@ LRUList.prototype.setMulti = function(pairs, done) {
       });
     });
 
-    batch.end(done);
+    batch.end(cb);
   });
 };
 
@@ -117,10 +117,10 @@ LRUList.prototype.setMulti = function(pairs, done) {
  * Apply a set/setMulti operation to the list/map structures.
  *
  * @param {string} key
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype._updateStructForPut = function(key, done) {
+LRUList.prototype._updateStructForPut = function(key, cb) {
   var entry = new LRUEntry(key); // Create new tail.
   this.keymap[key] = entry;
 
@@ -134,32 +134,32 @@ LRUList.prototype._updateStructForPut = function(key, done) {
   this.tail = entry; // Assign new tail.
 
   if (this.size === this.settings.limit) { // List size exceeded. Trim head.
-    this.shift(done);
+    this.shift(cb);
   } else {
     this.size++;
-    done(null);
+    cb(null);
   }
 };
 
 /**
  * Remove the key at the list's head (the LRU). Trigger removal of the value.
  *
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  *   {mixed} Shifted LRUEntry or undefined.
  */
-LRUList.prototype.shift = function(done) {
-  done = done || lruListNoOp;
+LRUList.prototype.shift = function(cb) {
+  cb = cb || lruListNoOp;
   var self = this;
 
   var entry = this.head;
   if (!entry) { // List already empty.
-    done(null);
+    cb(null);
     return;
   }
 
   this.settings.del(entry.key, function storeIODone(err) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     if (self.head.newer) { // 2nd-to-head is now head.
       self.head = self.head.newer;
@@ -173,7 +173,7 @@ LRUList.prototype.shift = function(done) {
     entry.newer = entry.older = undefined;
 
     delete self.keymap[entry.key];
-    done(null, entry);
+    cb(null, entry);
   });
 };
 
@@ -181,23 +181,23 @@ LRUList.prototype.shift = function(done) {
  * Promote the key to the tail (MRU). Read the value from storage.
  *
  * @param {string|array} key
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  *   {mixed} Value or undefined.
  */
-LRUList.prototype.get = function(key, done) {
-  done = done || lruListNoOp;
+LRUList.prototype.get = function(key, cb) {
+  cb = cb || lruListNoOp;
   var self = this;
 
   this.settings.get(key, function storeIODone(err, val) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     var entry = self.keymap[key];
-    if (entry === undefined) { done(null); return; } // Key miss.
-    if (entry === self.tail) { done(null, val); return; } // Key already MRU.
+    if (entry === undefined) { cb(null); return; } // Key miss.
+    if (entry === self.tail) { cb(null, val); return; } // Key already MRU.
 
     self._updateStructForGet(entry);
-    done(null, val);
+    cb(null, val);
   });
 };
 
@@ -205,23 +205,23 @@ LRUList.prototype.get = function(key, done) {
  * Promote the keys to the tail (MRU) in array order. Read the values from storage.
  *
  * @param {array} keys
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  *   {mixed} Key/value pairs or undefined.
  */
-LRUList.prototype.getMulti = function(keys, done) {
-  done = done || lruListNoOp;
+LRUList.prototype.getMulti = function(keys, cb) {
+  cb = cb || lruListNoOp;
   var self = this;
 
   this.settings.getMulti(keys, function storeIODone(err, pairs) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       var entry = self.keymap[keys[k]];
       if (entry === undefined) { continue; } // Key miss.
       if (entry === self.tail) { continue; } // Key already MRU.
       self._updateStructForGet(entry);
     }
-    done(null, pairs);
+    cb(null, pairs);
   });
 };
 
@@ -256,17 +256,17 @@ LRUList.prototype._updateStructForGet = function(entry) {
  * Remove the key from the list and key map. Trigger removal of the value.
  *
  * @param {string} key
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.del = function(key, done) {
-  done = done || lruListNoOp;
+LRUList.prototype.del = function(key, cb) {
+  cb = cb || lruListNoOp;
   var self = this;
 
   this.settings.del(key, function storeIODone(err) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     self._updateStructForRemove(key);
-    done(null);
+    cb(null);
   });
 };
 
@@ -274,19 +274,19 @@ LRUList.prototype.del = function(key, done) {
  * Remove keys from the list and key map. Trigger removal of the values.
  *
  * @param {array} keys
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.delMulti = function(keys, done) {
-  done = done || lruListNoOp;
+LRUList.prototype.delMulti = function(keys, cb) {
+  cb = cb || lruListNoOp;
   var self = this;
 
   this.settings.delMulti(keys, function storeIODone(err) {
-    if (err) { done(err); return; } // I/O failed, maintain current list/map.
+    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       self._updateStructForRemove(keys[k]);
     }
-    done(null);
+    cb(null);
   });
 };
 
@@ -319,11 +319,11 @@ LRUList.prototype._updateStructForRemove = function(key) {
 };
 
 /**
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.delAll = function(done) {
-  this.delMulti(this.keys(), done);
+LRUList.prototype.delAll = function(cb) {
+  this.delMulti(this.keys(), cb);
 };
 
 /**
@@ -355,12 +355,12 @@ LRUList.prototype.has = function(key) {
  * Save the key list to the storage backend.
  *
  * @param {string} key
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.saveStruct = function(key, done) {
+LRUList.prototype.saveStruct = function(key, cb) {
   this.set(key, this.keys(), function(err) {
-    done(err);
+    cb(err);
   });
 };
 
@@ -370,15 +370,15 @@ LRUList.prototype.saveStruct = function(key, done) {
  * Reuses on delAll() and _updateStructForPut() to regenerate the list/map.
  *
  * @param {string} key
- * @param {function} done
+ * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.restoreStruct = function(key, done) {
+LRUList.prototype.restoreStruct = function(key, cb) {
   var self = this;
   this.settings.get(key, function getDone(err, keys) {
-    if (err) { done(err); return; }
+    if (err) { cb(err); return; }
     self.delAll(function delDone(err) {
-      if (err) { done(err); return; }
+      if (err) { cb(err); return; }
       if (typeof keys !== 'undefined' && is.array(keys)) {
         var batch = new Batch();
         keys.forEach(function batchKey(key) {
@@ -386,9 +386,9 @@ LRUList.prototype.restoreStruct = function(key, done) {
             self._updateStructForPut(key, taskDone);
           });
         });
-        batch.end(done);
+        batch.end(cb);
       } else {
-        done(null); // Nothing to restore.
+        cb(null); // Nothing to restore.
       }
     });
   });
