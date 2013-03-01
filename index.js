@@ -28,7 +28,7 @@ var Batch = require('batch');
 var Configurable = require('configurable.js');
 var is = require('is');
 
-var emptyFn = function() {};
+function lruListNoOp() {};
 
 /**
  * See https://github.com/codeactual/lru-list#api for configurable settings.
@@ -41,12 +41,12 @@ function LRUList() {
 
   this.settings = {
     limit: -1,
-    set: emptyFn,
-    setMulti: emptyFn,
-    get: emptyFn,
-    getMulti: emptyFn,
-    del: emptyFn,
-    delMulti: emptyFn
+    set: lruListNoOp,
+    setMulti: lruListNoOp,
+    get: lruListNoOp,
+    getMulti: lruListNoOp,
+    del: lruListNoOp,
+    delMulti: lruListNoOp
   };
 }
 
@@ -75,7 +75,7 @@ function LRUEntry(key) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.set = function(key, val, done) {
-  done = done || function setDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
   this.settings.set(key, val, function storeIODone(err) {
     if (err) { done(err); return; } // I/O failed, maintain current list/map.
@@ -95,7 +95,7 @@ LRUList.prototype.set = function(key, val, done) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.setMulti = function(pairs, done) {
-  done = done || function setMultiDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
 
   this.settings.setMulti(pairs, function storeIODone(err) {
@@ -149,7 +149,7 @@ LRUList.prototype._updateStructForPut = function(key, done) {
  *   {mixed} Shifted LRUEntry or undefined.
  */
 LRUList.prototype.shift = function(done) {
-  done = done || function shiftDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
 
   var entry = this.head;
@@ -186,7 +186,7 @@ LRUList.prototype.shift = function(done) {
  *   {mixed} Value or undefined.
  */
 LRUList.prototype.get = function(key, done) {
-  done = done || function getDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
 
   this.settings.get(key, function storeIODone(err, val) {
@@ -210,7 +210,7 @@ LRUList.prototype.get = function(key, done) {
  *   {mixed} Key/value pairs or undefined.
  */
 LRUList.prototype.getMulti = function(keys, done) {
-  done = done || function getMultiDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
 
   this.settings.getMulti(keys, function storeIODone(err, pairs) {
@@ -260,7 +260,7 @@ LRUList.prototype._updateStructForGet = function(entry) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.del = function(key, done) {
-  done = done || function delDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
 
   this.settings.del(key, function storeIODone(err) {
@@ -278,7 +278,7 @@ LRUList.prototype.del = function(key, done) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.delMulti = function(keys, done) {
-  done = done || function delDoneNoOp() {};
+  done = done || lruListNoOp;
   var self = this;
 
   this.settings.delMulti(keys, function storeIODone(err) {
