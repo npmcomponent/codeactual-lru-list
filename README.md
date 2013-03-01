@@ -126,37 +126,37 @@ Build standalone file in `build/`:
 
 > Remove the key at the list's head (the LRU). Trigger removal of the value.
 
-`fn` receives `(<undefined|Error>)`.
+`fn` receives `(<null|undefined>)`.
 
 ### #get(key, fn)
 
 > Promote the key to the tail (MRU). Read the value from storage.
 
-`fn` receives `(<undefined|Error>, <undefined|value>)`.
+`fn` receives `(<null|undefined>, <undefined|value>)`.
 
 ### #getMulti(keys, fn)
 
 > Promote the keys to the tail (MRU) in array order. Read the values from storage.
 
-`fn` receives `(<undefined|Error>, <undefined|pairs>)`.
+`fn` receives `(<null|undefined>, <undefined|pairs>)`.
 
 ### #del(key, fn)
 
 > Remove the key from the list and key map. Trigger removal of the value.
 
-`fn` receives `(<undefined|Error>)`.
+`fn` receives `(<null|undefined>)`.
 
 ### #delMulti(keys, fn)
 
 > Remove the keys from the list and key map, in array order. Trigger removal of the values.
 
-`fn` receives `(<undefined|Error>)`.
+`fn` receives `(<null|undefined>)`.
 
 ### #delAll(fn)
 
 > Clear the list and key map. Trigger removal of all values.
 
-`fn` receives `(<undefined|Error>)`.
+`fn` receives `(<null|undefined>)`.
 
 ### Array#keys()
 
@@ -170,13 +170,13 @@ Build standalone file in `build/`:
 
 > Serialize the LRU list into the storage backend.
 
-`fn` receives `(<undefined|Error>)`.
+`fn` receives `(<null|undefined>)`.
 
 ### #restoreStruct(key, done)
 
 > Unserialize the LRU list from the storage backend.
 
-`fn` receives `(<undefined|Error>)`.
+`fn` receives `(<null|undefined>)`.
 
 ## License
 
