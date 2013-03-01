@@ -80,83 +80,83 @@ Build standalone file in `build/`:
 
 * default: -1
 
-`{function} set(key, val, done)` The callback responsible for writing a value at a given key.
+`{function} set(key, val, cb)` The callback responsible for writing a value at a given key.
 
-* To indicate an error: `done(new Error('reason'));`
-* To indicate an success: `done(null);`
+* To indicate an error: `cb(new Error('reason'));`
+* To indicate an success: `cb(null);`
 
-`{function} setMulti(pairs, done)` The callback responsible for writing a set of key/value pairs.
+`{function} setMulti(pairs, cb)` The callback responsible for writing a set of key/value pairs.
 
-* To indicate an error: `done(new Error('reason'));`
-* To indicate an success: `done(null);`
+* To indicate an error: `cb(new Error('reason'));`
+* To indicate an success: `cb(null);`
 
-`{function} get(key, done)` The callback responsible for reading a value at a given key.
+`{function} get(key, cb)` The callback responsible for reading a value at a given key.
 
-* To indicate an error: `done(new Error('reason'));`
-* To indicate an success: `done(null, val);`
+* To indicate an error: `cb(new Error('reason'));`
+* To indicate an success: `cb(null, val);`
 
-`{function} getMulti(keys, done)` The callback responsible for reading values at given key set.
+`{function} getMulti(keys, cb)` The callback responsible for reading values at given key set.
 
-* To indicate an error: `done(new Error('reason'));`
-* To indicate an success: `done(null, pairs);`
+* To indicate an error: `cb(new Error('reason'));`
+* To indicate an success: `cb(null, pairs);`
 
-`{function} del(key, done)` The callback responsible for removing key/value pair.
+`{function} del(key, cb)` The callback responsible for removing key/value pair.
 
-* To indicate an error: `done(new Error('reason'));`
-* To indicate an success: `done(null);`
+* To indicate an error: `cb(new Error('reason'));`
+* To indicate an success: `cb(null);`
 
-`{function} delMulti(keys, done)` The callback responsible for removing a set of key/value pairs.
+`{function} delMulti(keys, cb)` The callback responsible for removing a set of key/value pairs.
 
-* To indicate an error: `done(new Error('reason'));`
-* To indicate an success: `done(null);`
+* To indicate an error: `cb(new Error('reason'));`
+* To indicate an success: `cb(null);`
 
-### #set(key, value, fn)
+### #set(key, value, cb)
 
 > Append key to the list's tail. Trigger storage of the value.
 
-`fn` receives `(<null|Error>)`.
+`cb` receives `(<null|Error>)`.
 
-### #setMulti(pairs, fn)
+### #setMulti(pairs, cb)
 
 > Append keys to the list's tail in object-key order. Trigger storage of the values.
 
-`fn` receives `(<null|Error>)`.
+`cb` receives `(<null|Error>)`.
 
-### #shift(fn)
+### #shift(cb)
 
 > Remove the key at the list's head (the LRU). Trigger removal of the value.
 
-`fn` receives `(<null|undefined>)`.
+`cb` receives `(<null|Error>)`.
 
-### #get(key, fn)
+### #get(key, cb)
 
 > Promote the key to the tail (MRU). Read the value from storage.
 
-`fn` receives `(<null|undefined>, <undefined|value>)`.
+`cb` receives `(<null|Error>, <undefined|value>)`.
 
-### #getMulti(keys, fn)
+### #getMulti(keys, cb)
 
 > Promote the keys to the tail (MRU) in array order. Read the values from storage.
 
-`fn` receives `(<null|undefined>, <undefined|pairs>)`.
+`cb` receives `(<null|Error>, <undefined|pairs>)`.
 
-### #del(key, fn)
+### #del(key, cb)
 
 > Remove the key from the list and key map. Trigger removal of the value.
 
-`fn` receives `(<null|undefined>)`.
+`cb` receives `(<null|Error>)`.
 
-### #delMulti(keys, fn)
+### #delMulti(keys, cb)
 
 > Remove the keys from the list and key map, in array order. Trigger removal of the values.
 
-`fn` receives `(<null|undefined>)`.
+`cb` receives `(<null|Error>)`.
 
-### #delAll(fn)
+### #delAll(cb)
 
 > Clear the list and key map. Trigger removal of all values.
 
-`fn` receives `(<null|undefined>)`.
+`cb` receives `(<null|Error>)`.
 
 ### Array#keys()
 
@@ -170,13 +170,13 @@ Build standalone file in `build/`:
 
 > Serialize the LRU list into the storage backend.
 
-`fn` receives `(<null|undefined>)`.
+`cb` receives `(<null|Error>)`.
 
 ### #restoreStruct(key, done)
 
 > Unserialize the LRU list from the storage backend.
 
-`fn` receives `(<null|undefined>)`.
+`cb` receives `(<null|Error>)`.
 
 ## License
 
