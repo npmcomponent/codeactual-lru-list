@@ -82,31 +82,37 @@ Build standalone file in `build/`:
 
 `{function} set(key, val, cb)` The callback responsible for writing a value at a given key.
 
+* Required: No. Implement `#set` and/or `#setMulti` as needed.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null);`
 
 `{function} setMulti(pairs, cb)` The callback responsible for writing a set of key/value pairs.
 
+* Required: No. Implement `#set` and/or `#setMulti` as needed.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null);`
 
 `{function} get(key, cb)` The callback responsible for reading a value at a given key.
 
+* Required: No. Implement `#get` and/or `#getMulti` as needed.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null, val);`
 
 `{function} getMulti(keys, cb)` The callback responsible for reading values at given key set.
 
+* Required: No. Implement `#get` and/or `#getMulti` as needed.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null, pairs);`
 
 `{function} del(key, cb)` The callback responsible for removing key/value pair.
 
+* Required: Yes.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null);`
 
 `{function} delMulti(keys, cb)` The callback responsible for removing a set of key/value pairs.
 
+* Required: No.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null);`
 
