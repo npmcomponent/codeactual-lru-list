@@ -158,7 +158,10 @@ LRUList.prototype.shift = function(cb) {
     return;
   }
 
-  this.settings.del(entry.key, function storeIODone(err) {
+  // Allow exclusive use of single- or multi-key handlers.
+  var method = this.settings.del === lruListNoOp ? 'delMulti' : 'del';
+
+  this.settings[method](entry.key, function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     if (self.head.newer) { // 2nd-to-head is now head.
