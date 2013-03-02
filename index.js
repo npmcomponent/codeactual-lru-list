@@ -28,7 +28,7 @@ var Batch = require('batch');
 var Configurable = require('configurable.js');
 var is = require('is');
 
-function lruListNoOp() {};
+function lruListNoOp() {}
 
 /**
  * See https://github.com/codeactual/lru-list#api for configurable settings.
