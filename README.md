@@ -197,9 +197,9 @@ Build standalone file in `build/`:
     npm install --devDependencies
     npm test
 
-# Change Log
+## Change Log
 
-## 1.1.0
+### 1.1.0
 
 * Rename: `put*` to `set*`, `remove*` to `del*`.
 * Replaced: LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
@@ -208,6 +208,6 @@ Build standalone file in `build/`:
 * Added: Serialization of list to the storage backend and keymap regeneration via `saveStruct` and `restoreStruct`.
 * Fix: shift() did not wait for storage deletion success before updating list.
 
-## 1.0.0
+### 1.0.0
 
 * Added: initial API and tests for `set`, `shift`, `get`, `del`, `keys`.
