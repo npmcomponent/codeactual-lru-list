@@ -29,8 +29,8 @@
       "url": "https://codeactual@github.com/codeactual/lru-list.git"
     }
   ],
-  "dependencies": {
-    "component": "0.13.0"
+  "peerDependencies": {
+    "component": ">= 0.13.0"
   },
   "devDependencies": {
     "chai": "1.5.0",
