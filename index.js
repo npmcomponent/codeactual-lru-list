@@ -25,7 +25,7 @@ module.exports = {
 };
 
 var Batch = require('batch');
-var Configurable = require('configurable.js');
+var configurable = require('configurable.js');
 var is = require('is');
 
 function lruListNoOp() {}
@@ -50,7 +50,7 @@ function LRUList() {
   };
 }
 
-Configurable(LRUList.prototype);
+configurable(LRUList.prototype);
 
 // Work around naming conflict.
 LRUList.prototype.setOption = LRUList.prototype.set;
