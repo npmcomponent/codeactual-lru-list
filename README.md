@@ -192,10 +192,17 @@ Build standalone file in `build/`:
 
 ## Tests
 
-### NPM
+### Node
 
     npm install --devDependencies
     npm test
+
+### Browser via [Yeti](http://www.yeti.cx/)
+
+* `npm install yeti`
+* `yeti --server`
+* Browse `http://localhost:9000`
+* `make build && yeti test.html`
 
 ## Change Log
 
