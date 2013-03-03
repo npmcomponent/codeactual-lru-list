@@ -206,6 +206,10 @@ Build standalone file in `build/`:
 
 ## Change Log
 
+### 1.1.1
+
+* Upgrade: `codeactual/is` to 0.1.3
+
 ### 1.1.0
 
 * Rename: `put*` to `set*`, `remove*` to `del*`.

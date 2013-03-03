@@ -11,7 +11,7 @@
   "dependencies": {
     "component/batch": "9316255",
     "visionmedia/configurable.js": "f87ca5f",
-    "codeactual/is": "0.1.2"
+    "codeactual/is": "0.1.3"
   },
   "development": {},
   "scripts": [
