@@ -190,12 +190,12 @@ Build standalone file in `build/`:
 
   Based on https://github.com/rsms/js-lru (MIT).
 
-# Tests
+## Tests
 
-```
-npm install --devDependencies
-npm test
-```
+### NPM
+
+    npm install --devDependencies
+    npm test
 
 # Change Log
 
