@@ -1,8 +1,15 @@
-var chai = require('chai');
+var browserEnv = typeof window === 'object';
+
+if (browserEnv) {
+  mocha.setup('bdd');
+} else {
+  var chai = require('chai');
+  var lruList = require('./build/codeactual-lru-list');
+}
+
 var should = chai.should();
 chai.Assertion.includeStack = true;
 
-var lruList = require('./build/codeactual-lru-list');
 var LRUList = lruList.LRUList;
 var LRUEntry = lruList.LRUEntry;
 
@@ -1034,4 +1041,8 @@ function newListWithBrokenIO(limit) {
       .setOption('del', delErrCb)
       .setOption('delMulti', delMultiErrCb);
   return list;
+}
+
+if (browserEnv) {
+  mocha.run();
 }
