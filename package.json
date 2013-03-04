@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://codeactual@github.com/codeactual/lru-list.git"
+    "url": "https://github.com/codeactual/lru-list.git"
   },
   "peerDependencies": {
     "component": ">= 0.13.0"
