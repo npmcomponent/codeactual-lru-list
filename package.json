@@ -17,12 +17,10 @@
     "url": "https://github.com/codeactual/lru-list/issues"
   },
   "license": "MIT",
-  "repository": [
-    {
-      "type": "git",
-      "url": "https://codeactual@github.com/codeactual/lru-list.git"
-    }
-  ],
+  "repository": {
+    "type": "git",
+    "url": "https://codeactual@github.com/codeactual/lru-list.git"
+  },
   "peerDependencies": {
     "component": ">= 0.13.0"
   },
