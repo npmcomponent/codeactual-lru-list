@@ -84,7 +84,7 @@ LRUList.prototype.set = function(key, val, cb) {
     pairs[key] = val;
   }
 
-  this.settings.set(pairs, function storeIODone(err) {
+  this.getOption('set')(pairs, function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     var batch = new Batch();
@@ -119,7 +119,7 @@ LRUList.prototype._updateStructForPut = function(key, cb) {
 
   this.tail = entry; // Assign new tail.
 
-  if (this.size === this.settings.limit) { // List size exceeded. Trim head.
+  if (this.size === this.getOption('limit')) { // List size exceeded. Trim head.
     this.shift(cb);
   } else {
     this.size++;
@@ -144,7 +144,7 @@ LRUList.prototype.shift = function(cb) {
     return;
   }
 
-  this.settings.del([entry.key], function storeIODone(err) {
+  this.getOption('del')([entry.key], function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     if (self.head.newer) { // 2nd-to-head is now head.
@@ -176,7 +176,7 @@ LRUList.prototype.get = function(keys, cb) {
   cb = cb || lruListNoOp;
   var self = this;
 
-  this.settings.get(keys, function storeIODone(err, pairs) {
+  this.getOption('get')(keys, function storeIODone(err, pairs) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       var entry = self.keymap[keys[k]];
@@ -227,7 +227,7 @@ LRUList.prototype.del = function(keys, cb) {
   cb = cb || lruListNoOp;
   var self = this;
 
-  this.settings.del(keys, function storeIODone(err) {
+  this.getOption('del')(keys, function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       self._updateStructForRemove(keys[k]);
@@ -307,7 +307,7 @@ LRUList.prototype.has = function(key) {
 LRUList.prototype.saveStruct = function(key, cb) {
   var pairs = {};
   pairs[key] = this.keys();
-  this.settings.set(pairs, function(err) {
+  this.getOption('set')(pairs, function(err) {
     cb(err);
   });
 };
@@ -323,7 +323,7 @@ LRUList.prototype.saveStruct = function(key, cb) {
  */
 LRUList.prototype.restoreStruct = function(key, cb) {
   var self = this;
-  this.settings.get([key], function getDone(err, pairs) {
+  this.getOption('get')([key], function getDone(err, pairs) {
     if (err) { cb(err); return; }
     self.delAll(function delDone(err) {
       if (err) { cb(err); return; }
