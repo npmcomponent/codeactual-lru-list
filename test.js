@@ -20,7 +20,7 @@ var delErrCb = callFnAtArgWith(1, [storeErr]);
 
 describe('LRUList', function() {
   before(function(done) {
-    var store = {a: 'A', b: 'B', c: 'C'};
+    var store = {aa: 'AA', bb: 'BB', cc: 'CC'};
     this.keys = Object.keys(store);
     this.vals = [];
     this.entries = [];

@@ -144,7 +144,7 @@ LRUList.prototype.shift = function(cb) {
     return;
   }
 
-  this.settings.del(entry.key, function storeIODone(err) {
+  this.settings.del([entry.key], function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     if (self.head.newer) { // 2nd-to-head is now head.
