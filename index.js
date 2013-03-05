@@ -42,11 +42,8 @@ function LRUList() {
   this.settings = {
     limit: -1,
     set: lruListNoOp,
-    setMulti: lruListNoOp,
     get: lruListNoOp,
-    getMulti: lruListNoOp,
-    del: lruListNoOp,
-    delMulti: lruListNoOp
+    del: lruListNoOp
   };
 }
 
@@ -63,42 +60,31 @@ function LRUEntry(key) {
 }
 
 /**
- * Append key to the list's tail. Trigger storage of the value.
- *
- * - Duplicate keys are allowed by original design.
- *   May produce "orphaned" entries to which the key map no longer points. Then they
- *   can no longer be read/deld, and can only be pushed out by lack of use.
- *
- * @param {string} key
- * @param {mixed} val
- * @param {function} cb
- *   {object} Error instance or null.
- */
-LRUList.prototype.set = function(key, val, cb) {
-  cb = cb || lruListNoOp;
-  var self = this;
-  this.settings.set(key, val, function storeIODone(err) {
-    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
-    self._updateStructForPut(key, cb);
-  });
-};
-
-/**
  * Append keys to the list's tail in object-key order. Trigger storage of the values.
  *
  * - Duplicate keys are allowed by original design.
  *   May produce "orphaned" entries to which the key map no longer points. Then they
  *   can no longer be read/deld, and can only be pushed out by lack of use.
  *
- * @param {object} pairs
+ * @param {string|object} key
+ *   May hold key/value pairs, not just a key string.
+ * @param {mixed} val
+ *   If 'key' is an object, this will be 'cb'.
  * @param {function} cb
+ *   If 'key' is an object, this will be undefined.
  *   {object} Error instance or null.
  */
-LRUList.prototype.setMulti = function(pairs, cb) {
-  cb = cb || lruListNoOp;
+LRUList.prototype.set = function(key, val, cb) {
   var self = this;
+  var pairs = {};
+  if (is.object(key)) {
+    pairs = key;
+    cb = val || lruListNoOp;
+  } else {
+    pairs[key] = val;
+  }
 
-  this.settings.setMulti(pairs, function storeIODone(err) {
+  this.settings.set(pairs, function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     var batch = new Batch();
@@ -114,7 +100,7 @@ LRUList.prototype.setMulti = function(pairs, cb) {
 };
 
 /**
- * Apply a set/setMulti operation to the list/map structures.
+ * Apply a set operation to the list/map structures.
  *
  * @param {string} key
  * @param {function} cb
@@ -158,10 +144,7 @@ LRUList.prototype.shift = function(cb) {
     return;
   }
 
-  // Allow exclusive use of single- or multi-key handlers.
-  var method = this.settings.del === lruListNoOp ? 'delMulti' : 'del';
-
-  this.settings[method](entry.key, function storeIODone(err) {
+  this.settings.del(entry.key, function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
 
     if (self.head.newer) { // 2nd-to-head is now head.
@@ -181,42 +164,19 @@ LRUList.prototype.shift = function(cb) {
 };
 
 /**
- * Promote the key to the tail (MRU). Read the value from storage.
- *
- * @param {string|array} key
- * @param {function} cb
- *   {object} Error instance or null.
- *   {mixed} Value or undefined.
- */
-LRUList.prototype.get = function(key, cb) {
-  cb = cb || lruListNoOp;
-  var self = this;
-
-  this.settings.get(key, function storeIODone(err, val) {
-    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
-
-    var entry = self.keymap[key];
-    if (entry === undefined) { cb(null); return; } // Key miss.
-    if (entry === self.tail) { cb(null, val); return; } // Key already MRU.
-
-    self._updateStructForGet(entry);
-    cb(null, val);
-  });
-};
-
-/**
  * Promote the keys to the tail (MRU) in array order. Read the values from storage.
  *
- * @param {array} keys
+ * @param {string|array} keys
  * @param {function} cb
  *   {object} Error instance or null.
  *   {mixed} Key/value pairs or undefined.
  */
-LRUList.prototype.getMulti = function(keys, cb) {
+LRUList.prototype.get = function(keys, cb) {
+  keys = [].concat(keys);
   cb = cb || lruListNoOp;
   var self = this;
 
-  this.settings.getMulti(keys, function storeIODone(err, pairs) {
+  this.settings.get(keys, function storeIODone(err, pairs) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       var entry = self.keymap[keys[k]];
@@ -229,7 +189,7 @@ LRUList.prototype.getMulti = function(keys, cb) {
 };
 
 /**
- * Apply a get/getMulti operation to the list/map structures.
+ * Apply a get operation to the list/map structures.
  *
  * @param {object} entry LRUEntry instance.
  */
@@ -256,35 +216,18 @@ LRUList.prototype._updateStructForGet = function(entry) {
 };
 
 /**
- * Remove the key from the list and key map. Trigger removal of the value.
- *
- * @param {string} key
- * @param {function} cb
- *   {object} Error instance or null.
- */
-LRUList.prototype.del = function(key, cb) {
-  cb = cb || lruListNoOp;
-  var self = this;
-
-  this.settings.del(key, function storeIODone(err) {
-    if (err) { cb(err); return; } // I/O failed, maintain current list/map.
-    self._updateStructForRemove(key);
-    cb(null);
-  });
-};
-
-/**
  * Remove keys from the list and key map. Trigger removal of the values.
  *
- * @param {array} keys
+ * @param {string|array} keys
  * @param {function} cb
  *   {object} Error instance or null.
  */
-LRUList.prototype.delMulti = function(keys, cb) {
+LRUList.prototype.del = function(keys, cb) {
+  keys = [].concat(keys);
   cb = cb || lruListNoOp;
   var self = this;
 
-  this.settings.delMulti(keys, function storeIODone(err) {
+  this.settings.del(keys, function storeIODone(err) {
     if (err) { cb(err); return; } // I/O failed, maintain current list/map.
     for (var k = 0; k < keys.length; k++) {
       self._updateStructForRemove(keys[k]);
@@ -294,7 +237,7 @@ LRUList.prototype.delMulti = function(keys, cb) {
 };
 
 /**
- * Apply a del/delMulti operation to the list/map structures.
+ * Apply a delete operation to the list/map structures.
  *
  * @param {string} key
  */
@@ -326,7 +269,7 @@ LRUList.prototype._updateStructForRemove = function(key) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.delAll = function(cb) {
-  this.delMulti(this.keys(), cb);
+  this.del(this.keys(), cb);
 };
 
 /**
@@ -362,7 +305,9 @@ LRUList.prototype.has = function(key) {
  *   {object} Error instance or null.
  */
 LRUList.prototype.saveStruct = function(key, cb) {
-  this.set(key, this.keys(), function(err) {
+  var pairs = {};
+  pairs[key] = this.keys();
+  this.settings.set(pairs, function(err) {
     cb(err);
   });
 };
@@ -378,10 +323,11 @@ LRUList.prototype.saveStruct = function(key, cb) {
  */
 LRUList.prototype.restoreStruct = function(key, cb) {
   var self = this;
-  this.settings.get(key, function getDone(err, keys) {
+  this.settings.get([key], function getDone(err, pairs) {
     if (err) { cb(err); return; }
     self.delAll(function delDone(err) {
       if (err) { cb(err); return; }
+      var keys = pairs[key];
       if (typeof keys !== 'undefined' && is.array(keys)) {
         var batch = new Batch();
         keys.forEach(function batchKey(key) {

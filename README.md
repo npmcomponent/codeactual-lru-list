@@ -4,52 +4,30 @@ Storage-agnostic LRU list with async/multi-key operations.
 
 [![Build Status](https://travis-ci.org/codeactual/lru-list.png)](https://travis-ci.org/codeactual/lru-list)
 
-## Single-Key Example
+## Exmaple
 
 ```js
 var list = new LRUList();
 
 list.setOption('limit', 50)
-    .setOption('set', function(key, val, cb) {
+    .setOption('set', function(pairs, cb) {
       // Write to storage ...
       cb(/* or Error() */);
     })
-    .setOption('get', function(key, cb) {
+    .setOption('get', function(keys, cb) {
       // Read from storage ...
-      cb(/* or Error() */, val);
+      cb(/* or Error() */, pairs);
     })
-    .setOption('del', function(key, cb) {
+    .setOption('del', function(keys, cb) {
       // Write to storage ...
       cb(/* or Error() */);
     });
 
 list.set(key, val, function setDone(err) { /* ... */ });
+list.set(pairs, function setDone(err) { /* ... */ });
 list.shift(function shiftDone(err) { /* ... */ });
-list.get(key, function getDone(err, val) { /* ... */ });
-list.del(key, function delDone(err) { /* ... */ });
-list.keys(); // ['key1', 'key2', ...]
-```
-
-## Multi-Key Example
-
-```js
-// Add optional multi-key handling.
-list.setOption('setMulti', function(pairs, cb) {
-      // Write to storage ...
-      cb(/* or Error() */);
-    })
-    .setOption('getMulti', function(keys, cb) {
-      // Read from storage ...
-      cb(/* or Error() */, pairs);
-    })
-    .setOption('delMulti', function(keys, cb) {
-      // Write to storage ...
-      cb(/* or Error() */);
-    });
-
-list.setMulti(pairs, function setMultiDone(err) { /* ... */ });
-list.getMulti(keys, function getMultiDone(err, pairs) { /* ... */ });
-list.delMulti(keys, function delMultiDone(err) { /* ... */ });
+list.get(keys, function getDone(err, val) { /* ... */ });
+list.del(keys, function delDone(err) { /* ... */ });
 ```
 
 ## Installation
@@ -80,39 +58,19 @@ Build standalone file in `build/`:
 
 * default: -1
 
-`{function} set(key, val, cb)` The callback responsible for writing a value at a given key.
 
-* Required: No. Implement `#set` and/or `#setMulti` as needed.
+`{function} set(pairs, cb)` The callback responsible for writing a set of key/value pairs.
+
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null);`
 
-`{function} setMulti(pairs, cb)` The callback responsible for writing a set of key/value pairs.
+`{function} get(keys, cb)` The callback responsible for reading values at given key set.
 
-* Required: No. Implement `#set` and/or `#setMulti` as needed.
-* To indicate an error: `cb(new Error('reason'));`
-* To indicate an success: `cb(null);`
-
-`{function} get(key, cb)` The callback responsible for reading a value at a given key.
-
-* Required: No. Implement `#get` and/or `#getMulti` as needed.
-* To indicate an error: `cb(new Error('reason'));`
-* To indicate an success: `cb(null, val);`
-
-`{function} getMulti(keys, cb)` The callback responsible for reading values at given key set.
-
-* Required: No. Implement `#get` and/or `#getMulti` as needed.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null, pairs);`
 
-`{function} del(key, cb)` The callback responsible for removing key/value pair.
+`{function} del(keys, cb)` The callback responsible for removing a set of key/value pairs.
 
-* Required: Yes.
-* To indicate an error: `cb(new Error('reason'));`
-* To indicate an success: `cb(null);`
-
-`{function} delMulti(keys, cb)` The callback responsible for removing a set of key/value pairs.
-
-* Required: No.
 * To indicate an error: `cb(new Error('reason'));`
 * To indicate an success: `cb(null);`
 
@@ -122,7 +80,7 @@ Build standalone file in `build/`:
 
 `cb` receives `(<null|Error>)`.
 
-### #setMulti(pairs, cb)
+### #set(pairs, cb)
 
 > Append keys to the list's tail in object-key order. Trigger storage of the values.
 
@@ -134,27 +92,19 @@ Build standalone file in `build/`:
 
 `cb` receives `(<null|Error>)`.
 
-### #get(key, cb)
-
-> Promote the key to the tail (MRU). Read the value from storage.
-
-`cb` receives `(<null|Error>, <undefined|value>)`.
-
-### #getMulti(keys, cb)
+### #get(keys, cb)
 
 > Promote the keys to the tail (MRU) in array order. Read the values from storage.
 
+Provide `keys` as a string or array.
+
 `cb` receives `(<null|Error>, <undefined|pairs>)`.
 
-### #del(key, cb)
-
-> Remove the key from the list and key map. Trigger removal of the value.
-
-`cb` receives `(<null|Error>)`.
-
-### #delMulti(keys, cb)
+### #del(keys, cb)
 
 > Remove the keys from the list and key map, in array order. Trigger removal of the values.
+
+Provide `keys` as a string or array.
 
 `cb` receives `(<null|Error>)`.
 
@@ -205,6 +155,10 @@ Build standalone file in `build/`:
 * `make build && yeti test.html`
 
 ## Change Log
+
+### 1.2.0
+
+* Remove `setMulti/getMulti/delMulti` in favor of multi-key-only support through `set/get/del`. Storage handlers will always receive multi-key input types.
 
 ### 1.1.1
 

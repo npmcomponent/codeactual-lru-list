@@ -2,7 +2,7 @@
   "name": "lru-list",
   "repo": "codeactual/lru-list",
   "description": "Storage-agnostic LRU list with async/multi-key operations",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "keywords": [
     "lru",
     "cache",
