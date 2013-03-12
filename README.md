@@ -147,12 +147,12 @@ Provide `keys` as a string or array.
     npm install --devDependencies
     npm test
 
-### Browser via [Yeti](http://www.yeti.cx/)
+### Browser via [Testacular](http://testacular.github.com/)
 
-* `npm install yeti`
-* `yeti --server`
-* Browse `http://localhost:9000`
-* `make build && yeti test.html`
+* `npm install testacular`
+* `testacular start`
+* Browse `http://localhost:9876/`
+* `make build && testacular run`
 
 ## Change Log
 

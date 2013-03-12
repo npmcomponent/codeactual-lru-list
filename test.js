@@ -4,7 +4,7 @@ if (browserEnv) {
   mocha.setup('bdd');
 } else {
   var chai = require('chai');
-  var lruList = require('./build/codeactual-lru-list');
+  var lruList = require('./build/build');
 }
 
 var should = chai.should();
@@ -1026,8 +1026,4 @@ function newListWithBrokenIO(limit) {
       .setOption('get', getErrCb)
       .setOption('del', delErrCb);
   return list;
-}
-
-if (browserEnv) {
-  mocha.run();
 }
