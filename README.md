@@ -42,10 +42,6 @@ Build standalone file in `build/`:
 
     $ make dist
 
-### NPM
-
-    $ npm install codeactual-lru-list
-
 ## API
 
 ### LRUList()
