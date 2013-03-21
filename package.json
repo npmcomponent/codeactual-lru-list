@@ -1,7 +1,7 @@
 {
   "name": "codeactual-lru-list",
   "description": "Storage-agnostic LRU list with async/multi-key operations",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "keywords": [
     "lru",
     "cache",
