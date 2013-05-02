@@ -1,5 +1,5 @@
 {
-  "name": "codeactual-lru-list",
+  "name": "lru-list",
   "description": "Storage-agnostic LRU list with async/multi-key operations",
   "version": "1.2.1",
   "main": "index.js",
