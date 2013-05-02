@@ -4,7 +4,7 @@ if (browserEnv) {
   mocha.setup('bdd');
 } else {
   var chai = require('chai');
-  var lruList = require('./build/build');
+  var lruList = require('../../..');
 }
 
 var should = chai.should();

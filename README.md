@@ -7,7 +7,7 @@ Storage-agnostic LRU list with async/multi-key operations.
 ## Example
 
 ```js
-var list = new LRUList();
+var list = require('lru-list').create()
 
 list.setOption('limit', 50)
     .setOption('set', function(pairs, cb) {
@@ -32,103 +32,17 @@ list.del(keys, function delDone(err) { /* ... */ });
 
 ## Installation
 
-### [Component](https://github.com/component/component)
+### [NPM](https://npmjs.org/package/lru-list)
 
-Install to `components/`:
+    npm install lru-list
 
-    $ component install codeactual/lru-list
+### [component](https://github.com/component/component)
 
-Build standalone file in `build/`:
+    component install codeactual/lru-list
 
-    $ make dist
+## API Documentation
 
-## API
-
-### LRUList()
-
-> Create a new `LRUList`.
-
-[Configurable](https://github.com/visionmedia/configurable.js) via `#setOption()`:
-
-`{number} limit` Maximum list entries.
-
-* default: -1
-
-
-`{function} set(pairs, cb)` The callback responsible for writing a set of key/value pairs.
-
-* To indicate an error: `cb(new Error('reason'));`
-* To indicate an success: `cb(null);`
-
-`{function} get(keys, cb)` The callback responsible for reading values at given key set.
-
-* To indicate an error: `cb(new Error('reason'));`
-* To indicate an success: `cb(null, pairs);`
-
-`{function} del(keys, cb)` The callback responsible for removing a set of key/value pairs.
-
-* To indicate an error: `cb(new Error('reason'));`
-* To indicate an success: `cb(null);`
-
-### #set(key, value, cb)
-
-> Append key to the list's tail. Trigger storage of the value.
-
-`cb` receives `(<null|Error>)`.
-
-### #set(pairs, cb)
-
-> Append keys to the list's tail in object-key order. Trigger storage of the values.
-
-`cb` receives `(<null|Error>)`.
-
-### #shift(cb)
-
-> Remove the key at the list's head (the LRU). Trigger removal of the value.
-
-`cb` receives `(<null|Error>)`.
-
-### #get(keys, cb)
-
-> Promote the keys to the tail (MRU) in array order. Read the values from storage.
-
-Provide `keys` as a string or array.
-
-`cb` receives `(<null|Error>, <undefined|pairs>)`.
-
-### #del(keys, cb)
-
-> Remove the keys from the list and key map, in array order. Trigger removal of the values.
-
-Provide `keys` as a string or array.
-
-`cb` receives `(<null|Error>)`.
-
-### #delAll(cb)
-
-> Clear the list and key map. Trigger removal of all values.
-
-`cb` receives `(<null|Error>)`.
-
-### Array#keys()
-
-> Produce a head-to-tail ordered key list.
-
-### Boolean#has(key)
-
-> Check if a key exists.
-
-### #saveStruct(key, cb)
-
-> Serialize the LRU list into the storage backend.
-
-`cb` receives `(<null|Error>)`.
-
-### #restoreStruct(key, cb)
-
-> Unserialize the LRU list from the storage backend.
-
-`cb` receives `(<null|Error>)`.
+[LRUList / LRUEntry](docs/lru-list.md)
 
 ## License
 
@@ -140,7 +54,6 @@ Provide `keys` as a string or array.
 
 ### Node
 
-    npm install --devDependencies
     npm test
 
 ### Browser via [Karma](http://karma-runner.github.com/)
@@ -149,30 +62,3 @@ Provide `keys` as a string or array.
 * `karma start`
 * Browse `http://localhost:9876/`
 * `make build && karma run`
-
-## Change Log
-
-### 1.2.1
-
-* Update repo of `batch` component.
-
-### 1.2.0
-
-* Remove `setMulti/getMulti/delMulti` in favor of multi-key-only support through `set/get/del`. Storage handlers will always receive multi-key input types.
-
-### 1.1.1
-
-* Upgrade `codeactual/is` to 0.1.3
-
-### 1.1.0
-
-* Rename `put*` to `set*`, `remove*` to `del*`.
-* Replace LRUList() configuration object with [configurable.js](https://github.com/visionmedia/configurable.js/).
-* Replace Default 100 entry limit with no limit.
-* Add `setMulti`,  `getMulti`, `delMulti`, `has`, `delAll`.
-* Add Serialization of list to the storage backend and keymap regeneration via `saveStruct` and `restoreStruct`.
-* Fix shift() did not wait for storage deletion success before updating list.
-
-### 1.0.0
-
-* Add initial API and tests for `set`, `shift`, `get`, `del`, `keys`.

@@ -14,8 +14,9 @@
     "codeactual/is": "0.1.3"
   },
   "development": {},
+  "main": "lib/lru-list/index.js",
   "scripts": [
-    "index.js"
+    "lib/lru-list/index.js"
   ],
   "license": "MIT"
 }
