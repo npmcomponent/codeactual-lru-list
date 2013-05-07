@@ -4,7 +4,7 @@ Storage-agnostic LRU list with async/multi-key operations.
 
 [![Build Status](https://travis-ci.org/codeactual/lru-list.png)](https://travis-ci.org/codeactual/lru-list)
 
-## Exmaple
+## Example
 
 ```js
 var list = new LRUList();
