@@ -1,3 +1,7 @@
+# 1.3.0
+
+* Fix NPM compatibility.
+
 # 1.2.1
 
 * Update repo of `batch` component.
