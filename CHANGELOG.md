@@ -1,3 +1,7 @@
+# 1.3.1
+
+* Remove NPM shrinkwrapping.
+
 # 1.3.0
 
 * Fix NPM compatibility.
