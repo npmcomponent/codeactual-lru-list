@@ -1,3 +1,7 @@
+# 1.3.2
+
+* Upgrade `apidox` and dependents.
+
 # 1.3.1
 
 * Remove NPM shrinkwrapping.
