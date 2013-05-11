@@ -38,8 +38,8 @@ _Source: [lib/lru-list/index.js](../lib/lru-list/index.js)_
 **Properties:**
 
 - `{number} size` Current key count
-- `{object} tail` Reference to least recently used [LRUEntry](#lruentrykey)
-- `{object} head` Reference to most recently used [LRUEntry](#lruentrykey)
+- `{object} tail` Reference to most recently used [LRUEntry](#lruentrykey)
+- `{object} head` Reference to least recently used [LRUEntry](#lruentrykey)
 - `{object} keymap` [LRUEntry](#lruentrykey) objects of the list indexed by key
 
 # LRUEntry(key)
