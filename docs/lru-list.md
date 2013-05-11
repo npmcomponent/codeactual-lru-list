@@ -4,7 +4,7 @@ _Source: [lib/lru-list/index.js](../lib/lru-list/index.js)_
 
 - [exports.LRUList](#exportslrulist)
 - [exports.LRUEntry](#exportslruentry)
-- [LRUList](#lrulistkey)
+- [LRUList](#lrulist)
 - [LRUEntry](#lruentrykey)
 - [LRUList.prototype.set](#lrulistprototypesetkey-val-cb)
 - [LRUList.prototype.shift](#lrulistprototypeshiftcb)
@@ -18,13 +18,13 @@ _Source: [lib/lru-list/index.js](../lib/lru-list/index.js)_
 
 # exports.LRUList()
 
-> Reference to [LRUList](#lrulistkey).
+> Reference to [LRUList](#lrulist).
 
 # exports.LRUEntry()
 
 > Reference to [LRUEntry](#lruentrykey).
 
-# LRUList(key)
+# LRUList()
 
 > LRUList constructor.
 
@@ -41,10 +41,6 @@ _Source: [lib/lru-list/index.js](../lib/lru-list/index.js)_
 - `{object} tail` Reference to least recently used [LRUEntry](#lruentrykey)
 - `{object} head` Reference to most recently used [LRUEntry](#lruentrykey)
 - `{object} keymap` [LRUEntry](#lruentrykey) objects of the list indexed by key
-
-**Parameters:**
-
-- `{string} key`
 
 # LRUEntry(key)
 
