@@ -30,6 +30,8 @@ list.get(keys, function getDone(err, val) { /* ... */ });
 list.del(keys, function delDone(err) { /* ... */ });
 ```
 
+See [bindle](https://github.com/codeactual/bindle) for an example of using `lru-list` to handle `QUOTA_EXCEEDED_ERR` errors from `localStorage`.
+
 ## Installation
 
 ### [NPM](https://npmjs.org/package/lru-list)
@@ -40,15 +42,15 @@ list.del(keys, function delDone(err) { /* ... */ });
 
     component install codeactual/lru-list
 
-## API Documentation
+## API
 
-[LRUList / LRUEntry](docs/lru-list.md)
+[Documentation](docs/lru-list.md)
 
 ## License
 
   MIT
 
-  Based on https://github.com/rsms/js-lru (MIT).
+  Based on [js-lru](https://github.com/rsms/js-lru) (MIT).
 
 ## Tests
 
