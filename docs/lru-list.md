@@ -113,7 +113,7 @@ _Source: [lib/lru-list/index.js](../lib/lru-list/index.js)_
 
 # LRUList.prototype.keys()
 
-> Produce a head-to-tail ordered key list.
+> Produce the key list ordered least-to-most recently used.
 
 **Return:**
 
