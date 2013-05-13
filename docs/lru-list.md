@@ -4,19 +4,19 @@ _Source: [lib/lru-list/index.js](../lib/lru-list/index.js)_
 
 <a name="tableofcontents"></a>
 
-- <a name="toc_exports"></a>[exports.LRUList](#exportslrulist)
-- [exports.LRUEntry](#exportslruentry)
+- <a name="toc_exportslrulist"></a><a name="toc_exports"></a>[exports.LRUList](#exportslrulist)
+- <a name="toc_exportslruentry"></a>[exports.LRUEntry](#exportslruentry)
 - <a name="toc_lrulist"></a>[LRUList](#lrulist)
-- [LRUEntry](#lruentrykey)
-- <a name="toc_lrulistprototype"></a>[LRUList.prototype.set](#lrulistprototypesetkey-val-cb)
-- [LRUList.prototype.shift](#lrulistprototypeshiftcb)
-- [LRUList.prototype.get](#lrulistprototypegetkeys-cb)
-- [LRUList.prototype.del](#lrulistprototypedelkeys-cb)
-- [LRUList.prototype.delAll](#lrulistprototypedelallcb)
-- [LRUList.prototype.keys](#lrulistprototypekeys)
-- [LRUList.prototype.has](#lrulistprototypehaskey)
-- [LRUList.prototype.saveStruct](#lrulistprototypesavestructkey-cb)
-- [LRUList.prototype.restoreStruct](#lrulistprototyperestorestructkey-cb)
+- <a name="toc_lruentrykey"></a>[LRUEntry](#lruentrykey)
+- <a name="toc_lrulistprototypesetkey-val-cb"></a><a name="toc_lrulistprototype"></a>[LRUList.prototype.set](#lrulistprototypesetkey-val-cb)
+- <a name="toc_lrulistprototypeshiftcb"></a>[LRUList.prototype.shift](#lrulistprototypeshiftcb)
+- <a name="toc_lrulistprototypegetkeys-cb"></a>[LRUList.prototype.get](#lrulistprototypegetkeys-cb)
+- <a name="toc_lrulistprototypedelkeys-cb"></a>[LRUList.prototype.del](#lrulistprototypedelkeys-cb)
+- <a name="toc_lrulistprototypedelallcb"></a>[LRUList.prototype.delAll](#lrulistprototypedelallcb)
+- <a name="toc_lrulistprototypekeys"></a>[LRUList.prototype.keys](#lrulistprototypekeys)
+- <a name="toc_lrulistprototypehaskey"></a>[LRUList.prototype.has](#lrulistprototypehaskey)
+- <a name="toc_lrulistprototypesavestructkey-cb"></a>[LRUList.prototype.saveStruct](#lrulistprototypesavestructkey-cb)
+- <a name="toc_lrulistprototyperestorestructkey-cb"></a>[LRUList.prototype.restoreStruct](#lrulistprototyperestorestructkey-cb)
 
 <a name="exports"></a>
 
