@@ -492,9 +492,12 @@
         function lruListNoOp() {}
     });
     require.alias("visionmedia-batch/index.js", "lru-list/deps/batch/index.js");
+    require.alias("visionmedia-batch/index.js", "batch/index.js");
     require.alias("component-emitter/index.js", "visionmedia-batch/deps/emitter/index.js");
     require.alias("visionmedia-configurable.js/index.js", "lru-list/deps/configurable.js/index.js");
+    require.alias("visionmedia-configurable.js/index.js", "configurable.js/index.js");
     require.alias("codeactual-is/index.js", "lru-list/deps/is/index.js");
+    require.alias("codeactual-is/index.js", "is/index.js");
     require.alias("manuelstofer-each/index.js", "codeactual-is/deps/each/index.js");
     require.alias("lru-list/lib/lru-list/index.js", "lru-list/index.js");
     if (typeof exports == "object") {
@@ -504,6 +507,6 @@
             return require("lru-list");
         });
     } else {
-        window["lruList"] = require("lru-list");
+        this["lruList"] = require("lru-list");
     }
 })();

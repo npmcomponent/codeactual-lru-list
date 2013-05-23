@@ -1,3 +1,7 @@
+# 1.3.3
+
+* chore(npm): Upgrade outdated dev dependencies
+
 # 1.3.2
 
 * Upgrade `apidox` and dependents.
