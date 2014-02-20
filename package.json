@@ -1,44 +1,17 @@
 {
-  "name": "lru-list",
+  "name": "codeactual-lru-list",
   "description": "Storage-agnostic LRU list with async/multi-key operations",
   "version": "1.3.3",
-  "main": "index.js",
   "keywords": [
     "lru",
     "cache",
     "utility"
   ],
-  "contributors": [
-    {
-      "name": "David Smith",
-      "web": "https://github.com/codeactual/"
-    }
-  ],
-  "bugs": {
-    "url": "https://github.com/codeactual/lru-list/issues"
+  "main": "lib/lru-list/index.js",
+  "dependencies": {
+    "visionmedia-batch": "git://github.com/npmcomponent/visionmedia-batch.git",
+    "visionmedia-configurable.js": "git://github.com/npmcomponent/visionmedia-configurable.js.git",
+    "codeactual-is": "git://github.com/npmcomponent/codeactual-is.git"
   },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/codeactual/lru-list.git"
-  },
-  "devDependencies": {
-    "chai": "~1.6.0",
-    "component": "~0.16.0",
-    "apidox": "~0.3.1",
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.5.4",
-    "grunt-contrib-uglify": "~0.2.0",
-    "grunt-shell": "~0.2.2",
-    "mocha": "~1.10.0",
-    "grunt-horde": "~0.3.0",
-    "node-component-grunt": "git://github.com/codeactual/node-component-grunt.git"
-  },
-  "scripts": {
-    "test": "grunt test"
-  },
-  "author": "David Smith <codeactual@gmail.com>",
-  "devdir-ci": {
-    "version": 1
-  }
+  "license": "MIT"
 }
